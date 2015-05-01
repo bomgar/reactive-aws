@@ -3,14 +3,13 @@ package com.github.bomgar.auth
 import java.net.{URL, URLEncoder}
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
-import java.text.SimpleDateFormat
-import java.util.{Locale, SimpleTimeZone}
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
 import scala.collection.immutable.TreeMap
-
-
 
 abstract class AWS4SignerBase {
 
@@ -21,14 +20,17 @@ abstract class AWS4SignerBase {
   protected val TERMINATOR = "aws4_request"
 
   /** format strings for the date/time and date stamps required during signing **/
-  protected val ISO8601BasicFormat = "yyyyMMdd'T'HHmmss'Z'"
-  protected val DateStringFormat = "yyyyMMdd"
+  private val ISO8601BasicFormat = "yyyyMMdd'T'HHmmss'Z'"
+  private val DateStringFormat = "yyyyMMdd"
 
-  protected val dateTimeFormat: SimpleDateFormat = new SimpleDateFormat(ISO8601BasicFormat)
-  dateTimeFormat.setTimeZone(new SimpleTimeZone(0, "UTC"))
+  protected val dateTimeFormat: DateTimeFormatter = DateTimeFormatter
+    .ofPattern(ISO8601BasicFormat)
+    .withZone(ZoneId.of("UTC"))
 
-  protected val dateStampFormat: SimpleDateFormat = new SimpleDateFormat(DateStringFormat)
-  dateStampFormat.setTimeZone(new SimpleTimeZone(0, "UTC"))
+  protected val dateStampFormat: DateTimeFormatter = DateTimeFormatter
+    .ofPattern(DateStringFormat)
+    .withZone(ZoneId.of("UTC"))
+
 
 
   /**
