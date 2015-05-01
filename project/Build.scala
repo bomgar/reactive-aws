@@ -3,15 +3,9 @@ import sbt._
 
 object Build extends Build {
 
-
   lazy val core = project in file("core")
 
   lazy val sqs = project.in(file("sqs")).dependsOn(core)
-
-  val additionalResolvers = Seq(
-    "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases",
-    "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
-  )
 
   lazy val root =
     Project(
@@ -21,8 +15,6 @@ object Build extends Build {
         name := "reactive-aws",
         organization := "com.github.bomgar",
         version := "1.0",
-        scalaVersion := "2.11.6",
-
-        resolvers ++= additionalResolvers
+        scalaVersion := "2.11.6"
       ).aggregate(sqs, core)
 }

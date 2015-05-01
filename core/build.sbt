@@ -6,6 +6,16 @@ version := "1.0"
 
 scalaVersion := "2.11.6"
 
+resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+
 libraryDependencies ++= Seq(
-  "org.specs2" %% "specs2-core" % "3.5"
+  "org.specs2" %% "specs2-core" % "3.5",
+  "org.specs2" %% "specs2-mock" % "3.5"
 ).map(_ % "test")
+
+libraryDependencies ++= Seq(
+  "com.typesafe.play" %% "play-ws" % "2.3.8"
+)
+
+
+scalacOptions += "-target:jvm-1.8"

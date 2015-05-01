@@ -1,4 +1,4 @@
-package com.github.bomgar.security
+package com.github.bomgar.auth
 
 import org.specs2.mutable.Specification
 
