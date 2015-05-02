@@ -30,46 +30,41 @@ class AWS4SignerForAuthorizationHeader(
   override def sign(request: WSRequest): Unit = {
     var requestVar = request
     val awsCredentials = awsCredentialsProvider.awsCredentials
-    val requestVarDate: Instant = Instant.now(clock)
+    val requestDate: Instant = Instant.now(clock)
     val endpointUrl = new URL(requestVar.url)
+    val dateTimeStamp: String = dateTimeFormat.format(requestDate)
 
     val headers = removeMultiples(requestVar.allHeaders)
-    var additionalHeaders = Map.empty[String, String]
-
-
-    // convert to ISO 8601 format for use in signature generation
-    val dateTimeStamp: String = dateTimeFormat.format(requestVarDate)
-    additionalHeaders += ("x-amz-date" -> dateTimeStamp)
-
-
-    val port: Int = endpointUrl.getPort
-    val hostHeader: String = createHostHeader(endpointUrl, port)
-    additionalHeaders += ("Host" -> hostHeader)
+    val additionalHeadersToSign = computeAdditionalHeaders(endpointUrl, dateTimeStamp)
 
     val queryString = Try(requestVar.queryString).toOption.getOrElse(Map.empty[String, Seq[String]])
 
     val queryParameters = removeMultiples(queryString)
 
-    val canonicalizedHeaderNames = getCanonicalizeHeaderNames(headers ++ additionalHeaders)
-    val canonicalizedHeaders = getCanonicalizedHeaderString(headers ++ additionalHeaders)
-    val canonicalizedQueryParameters = getCanonicalizedQueryString(queryParameters)
-
     val bodyHash = BinaryUtils.toHex(BinaryUtils.hash(requestVar.getBody.getOrElse(Array.empty)))
 
-    val canonicalrequest = getCanonicalRequest(endpointUrl, requestVar.method, canonicalizedQueryParameters, canonicalizedHeaderNames, canonicalizedHeaders, bodyHash)
-    log.debug("Canonical requestVar: {}", canonicalrequest)
+    val canonicalRequest = new CanonicalRequest(new URL(request.url), request.method, headers ++ additionalHeadersToSign, queryParameters, bodyHash)
 
-    val dateStamp = dateStampFormat.format(requestVarDate)
+    log.debug("Canonical request: {}", canonicalRequest)
+
+    val dateStamp = dateStampFormat.format(requestDate)
     val scope = dateStamp + "/" + region.toString + "/" + serviceName + "/" + TERMINATOR
-    val stringToSign = getStringToSign(SCHEME, ALGORITHM, dateTimeStamp, scope, canonicalrequest)
+    val stringToSign = getStringToSign(SCHEME, ALGORITHM, dateTimeStamp, scope, canonicalRequest)
 
     log.debug("String to sign: {}", stringToSign)
 
-    val authorizationHeader: String = createAuthorizationHeader(awsCredentials, canonicalizedHeaderNames, dateStamp, scope, stringToSign)
-    additionalHeaders += ("Authorization" -> authorizationHeader)
+    val authorizationHeader: String = createAuthorizationHeader(awsCredentials, canonicalRequest.canonicalizedHeaderNames, dateStamp, scope, stringToSign)
+    requestVar = applyHeadersToRequest(requestVar, additionalHeadersToSign + ("Authorization" -> authorizationHeader))
 
-    requestVar = applyHeadersToRequest(requestVar, additionalHeaders)
+  }
 
+  private def computeAdditionalHeaders(endpointUrl: URL, timestamp: String): Map[String, String] = {
+    val port: Int = endpointUrl.getPort
+    val hostHeader: String = createHostHeader(endpointUrl, port)
+    Map(
+      "Host" -> hostHeader,
+      "x-amz-date" -> timestamp
+    )
   }
 
   private def applyHeadersToRequest(request: WSRequest, headers: Map[String, String]): WSRequest = {
