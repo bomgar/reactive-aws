@@ -3,7 +3,7 @@ package com.github.bomgar.sqs
 import com.github.bomgar.Region
 import com.github.bomgar.auth.credentials.AwsCredentialsProvider
 import com.github.bomgar.client.BaseAwsClient
-import com.github.bomgar.sqs.domain.Queue
+import com.github.bomgar.sqs.domain.QueueReference
 import org.slf4j.LoggerFactory
 import play.api.libs.ws.WSClient
 
@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AwsSqsClient(credentialsProvider: AwsCredentialsProvider, region: Region.Type, client: WSClient)(implicit executionContext: ExecutionContext)
   extends BaseAwsClient(credentialsProvider, region, client, "sqs") {
 
-  def listQueues(): Future[Seq[Queue]] = {
+  def listQueues(): Future[Seq[QueueReference]] = {
     val response = client.url(baseUrl)
       .withHeaders(
         "Content-Type" -> "application/x-www-form-urlencoded"
@@ -24,6 +24,6 @@ class AwsSqsClient(credentialsProvider: AwsCredentialsProvider, region: Region.T
     response.map{response =>
       log.debug("AWS response: {}", response.body)
       response.xml
-    }.map(Queue.fromListQueueResult)
+    }.map(QueueReference.fromListQueueResult)
   }
 }
