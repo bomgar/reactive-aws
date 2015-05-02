@@ -3,6 +3,7 @@ package com.github.bomgar.client
 import com.github.bomgar.Region
 import com.github.bomgar.auth.AWS4SignerForAuthorizationHeader
 import com.github.bomgar.auth.credentials.AwsCredentialsProvider
+import org.slf4j.LoggerFactory
 import play.api.libs.ws.WSClient
 
 class BaseAwsClient(
@@ -11,6 +12,8 @@ class BaseAwsClient(
                      val client: WSClient,
                      val serviceName: String
                      ) {
+
+  val log = LoggerFactory.getLogger(getClass)
 
   val baseUrl = s"https://$serviceName.$region.amazonaws.com"
 
