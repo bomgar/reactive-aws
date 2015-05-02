@@ -2,14 +2,13 @@ package com.github.bomgar.auth
 
 
 import java.net.URL
-import java.time.Instant
+import java.time.{Clock, Instant}
 
-import akka.actor.Status.Success
+import com.github.bomgar.Region
 import com.github.bomgar.auth.credentials.{AwsCredentials, AwsCredentialsProvider}
 import com.github.bomgar.utils.BinaryUtils
 import org.slf4j.LoggerFactory
 import play.api.libs.ws.{WSRequest, WSSignatureCalculator}
-import com.github.bomgar.Region
 
 import scala.util.Try
 
@@ -17,7 +16,12 @@ import scala.util.Try
 /**
  * class copied from aws examples and converted to scala (not nice yet)
  */
-class AWS4SignerForAuthorizationHeader(val awsCredentialsProvider: AwsCredentialsProvider, val region: Region.Type, val serviceName: String)
+class AWS4SignerForAuthorizationHeader(
+                                        val awsCredentialsProvider: AwsCredentialsProvider,
+                                        val region: Region.Type,
+                                        val serviceName: String,
+                                        val clock: Clock = java.time.Clock.systemUTC()
+                                        )
   extends AWS4SignerBase
   with WSSignatureCalculator {
 
@@ -26,7 +30,7 @@ class AWS4SignerForAuthorizationHeader(val awsCredentialsProvider: AwsCredential
   override def sign(request: WSRequest): Unit = {
     var requestVar = request
     val awsCredentials = awsCredentialsProvider.awsCredentials
-    val requestVarDate: Instant = Instant.now()
+    val requestVarDate: Instant = Instant.now(clock)
     val endpointUrl = new URL(requestVar.url)
 
     var headers = removeMultiples(requestVar.allHeaders)
@@ -94,9 +98,9 @@ class AWS4SignerForAuthorizationHeader(val awsCredentialsProvider: AwsCredential
   }
 
   private def removeMultiples(multiMap: Map[String, Seq[String]]): Map[String, String] = {
-    multiMap.toSeq.flatMap{
+    multiMap.toSeq.flatMap {
       case (key, values) =>
-        values.map(value => (key,value))
+        values.map(value => (key, value))
     }.toMap
   }
 

@@ -2,10 +2,8 @@ package com.github.bomgar.auth
 
 import java.net.{URL, URLEncoder}
 import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
@@ -36,7 +34,6 @@ class AWS4SignerBase {
   protected val dateStampFormat: DateTimeFormatter = DateTimeFormatter
     .ofPattern(DateStringFormat)
     .withZone(ZoneId.of("UTC"))
-
 
 
   /**
@@ -88,9 +85,10 @@ class AWS4SignerBase {
       .map(_.getPath)
       .filter(!_.isEmpty)
       .map(path => urlEncode(path, keepPathSlash = true))
-      .map(encodedPath =>
-      if (encodedPath.startsWith("/")) encodedPath
-      else "/".concat(encodedPath)
+      .map(
+        encodedPath =>
+          if (encodedPath.startsWith("/")) encodedPath
+          else "/".concat(encodedPath)
       )
       .getOrElse("/")
   }
@@ -127,7 +125,7 @@ class AWS4SignerBase {
 
   protected def sign(stringData: String, key: Array[Byte], algorithm: String): Array[Byte] = {
     try {
-      val data: Array[Byte] = stringData.getBytes("UTF-8")
+      val data: Array[Byte] = stringData.getBytes(StandardCharsets.UTF_8)
       val mac: Mac = Mac.getInstance(algorithm)
       mac.init(new SecretKeySpec(key, algorithm))
       mac.doFinal(data)
