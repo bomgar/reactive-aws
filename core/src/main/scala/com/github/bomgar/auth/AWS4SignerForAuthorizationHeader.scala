@@ -13,6 +13,9 @@ import com.github.bomgar.Region
 import scala.util.Try
 
 
+/**
+ * class copied from aws examples and converted to scala (not nice yet)
+ */
 class AWS4SignerForAuthorizationHeader(val awsCredentialsProvider: AwsCredentialsProvider, val region: Region.Type, val serviceName: String)
   extends AWS4SignerBase
   with WSSignatureCalculator {
