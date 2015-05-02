@@ -8,4 +8,4 @@ Currently working:
 
 # Build
 
-[![Build Status](https://travis-ci.org/quepasa-io/quepasa-server.svg?branch=master)](https://travis-ci.org/quepasa-io/quepasa-server/builds)
+[![Build Status](https://travis-ci.org/bomgar/reactive-aws.svg?branch=master)](https://travis-ci.org/bomgar/reactive-aws)
