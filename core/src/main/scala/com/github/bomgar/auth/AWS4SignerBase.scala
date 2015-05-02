@@ -129,7 +129,7 @@ abstract class AWS4SignerBase {
   protected def hash(text: String): Array[Byte] = {
     try {
       val md: MessageDigest = MessageDigest.getInstance("SHA-256")
-      md.update(text.getBytes("UTF-8"))
+      md.update(text.getBytes(StandardCharsets.UTF_8))
       md.digest
     }
     catch {
