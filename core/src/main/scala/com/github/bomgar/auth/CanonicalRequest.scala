@@ -14,12 +14,15 @@ class CanonicalRequest(val endpoint: URL, val httpMethod: String, headers: Map[S
 
   val canonicalizedQueryParameters = getCanonicalizedQueryString(queryParameters)
 
-  override def toString =  httpMethod + "\n" +
-    getCanonicalizedResourcePath(endpoint) + "\n" +
-    canonicalizedQueryParameters + "\n" +
-    canonicalizedHeaders + "\n" +
-    canonicalizedHeaderNames + "\n" +
-    bodyHash
+  val canonicalizedResourcePath = getCanonicalizedResourcePath(endpoint)
+
+  override def toString =
+    s"""|$httpMethod
+        |$canonicalizedResourcePath
+        |$canonicalizedQueryParameters
+        |$canonicalizedHeaders
+        |$canonicalizedHeaderNames
+        |$bodyHash""".stripMargin
 
   private def urlEncode(url: String, keepPathSlash: Boolean): String = {
     val encoded: String = URLEncoder.encode(url, StandardCharsets.UTF_8.toString)

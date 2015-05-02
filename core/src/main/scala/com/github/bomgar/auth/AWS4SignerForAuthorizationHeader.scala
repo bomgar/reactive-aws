@@ -22,7 +22,7 @@ class AWS4SignerForAuthorizationHeader(
                                         val serviceName: String,
                                         val clock: Clock = java.time.Clock.systemUTC()
                                         )
-  extends AWS4SignerBase
+  extends AWS4Signer
   with WSSignatureCalculator {
 
   val log = LoggerFactory.getLogger(getClass)
@@ -49,7 +49,7 @@ class AWS4SignerForAuthorizationHeader(
 
     val dateStamp = dateStampFormat.format(requestDate)
     val scope = dateStamp + "/" + region.toString + "/" + serviceName + "/" + TERMINATOR
-    val stringToSign = getStringToSign(SCHEME, ALGORITHM, dateTimeStamp, scope, canonicalRequest)
+    val stringToSign = buildStringToSign(SCHEME, ALGORITHM, dateTimeStamp, scope, canonicalRequest)
 
     log.debug("String to sign: {}", stringToSign)
 

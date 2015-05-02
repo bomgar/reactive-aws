@@ -15,7 +15,7 @@ import scala.collection.immutable.TreeMap
 /**
  * class copied from aws examples and converted to scala (not nice yet)
  */
-class AWS4SignerBase {
+trait AWS4Signer {
 
   protected val EMPTY_BODY_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   protected val UNSIGNED_PAYLOAD = "UNSIGNED-PAYLOAD"
@@ -36,8 +36,12 @@ class AWS4SignerBase {
     .withZone(ZoneId.of("UTC"))
 
 
-  protected def getStringToSign(scheme: String, algorithm: String, dateTime: String, scope: String, canonicalRequest: CanonicalRequest): String = {
-    scheme + "-" + algorithm + "\n" + dateTime + "\n" + scope + "\n" + BinaryUtils.toHex(BinaryUtils.hash(canonicalRequest.toString))
+  protected def buildStringToSign(scheme: String, algorithm: String, dateTime: String, scope: String, canonicalRequest: CanonicalRequest): String = {
+    val requestHash: String = BinaryUtils.toHex(BinaryUtils.hash(canonicalRequest.toString))
+    s"""|$scheme-$algorithm
+        |$dateTime
+        |$scope
+        |$requestHash""".stripMargin
   }
 
   protected def sign(stringData: String, key: Array[Byte], algorithm: String): Array[Byte] = {
