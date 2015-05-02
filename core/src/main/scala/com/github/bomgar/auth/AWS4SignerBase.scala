@@ -9,13 +9,15 @@ import java.util.Locale
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
+import com.github.bomgar.utils.BinaryUtils
+
 import scala.collection.immutable.TreeMap
 
 
 /**
  * class copied from aws examples and converted to scala (not nice yet)
  */
-abstract class AWS4SignerBase {
+class AWS4SignerBase {
 
   protected val EMPTY_BODY_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   protected val UNSIGNED_PAYLOAD = "UNSIGNED-PAYLOAD"
@@ -119,38 +121,7 @@ abstract class AWS4SignerBase {
   }
 
   protected def getStringToSign(scheme: String, algorithm: String, dateTime: String, scope: String, canonicalRequest: String): String = {
-    scheme + "-" + algorithm + "\n" + dateTime + "\n" + scope + "\n" + toHex(hash(canonicalRequest))
-  }
-
-  /**
-   * Hashes the string contents (assumed to be UTF-8) using the SHA-256
-   * algorithm.
-   */
-  protected def hash(text: String): Array[Byte] = {
-    try {
-      val md: MessageDigest = MessageDigest.getInstance("SHA-256")
-      md.update(text.getBytes(StandardCharsets.UTF_8))
-      md.digest
-    }
-    catch {
-      case e: Exception =>
-        throw new RuntimeException("Unable to compute hash while signing request: " + e.getMessage, e)
-    }
-  }
-
-  /**
-   * Hashes the byte array using the SHA-256 algorithm.
-   */
-  protected def hash(data: Array[Byte]): Array[Byte] = {
-    try {
-      val md: MessageDigest = MessageDigest.getInstance("SHA-256")
-      md.update(data)
-      md.digest
-    }
-    catch {
-      case e: Exception =>
-        throw new RuntimeException("Unable to compute hash while signing request: " + e.getMessage, e)
-    }
+    scheme + "-" + algorithm + "\n" + dateTime + "\n" + scope + "\n" + BinaryUtils.toHex(BinaryUtils.hash(canonicalRequest))
   }
 
   protected def sign(stringData: String, key: Array[Byte], algorithm: String): Array[Byte] = {
@@ -174,11 +145,5 @@ abstract class AWS4SignerBase {
       encoded
     }
   }
-
-  protected def toHex(data: Array[Byte]): String = {
-    data.map("%02X" format _).mkString.toLowerCase(Locale.getDefault)
-  }
-
-
 
 }

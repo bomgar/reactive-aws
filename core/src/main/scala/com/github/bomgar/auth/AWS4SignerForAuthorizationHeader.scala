@@ -6,6 +6,7 @@ import java.time.Instant
 
 import akka.actor.Status.Success
 import com.github.bomgar.auth.credentials.{AwsCredentials, AwsCredentialsProvider}
+import com.github.bomgar.utils.BinaryUtils
 import org.slf4j.LoggerFactory
 import play.api.libs.ws.{WSRequest, WSSignatureCalculator}
 import com.github.bomgar.Region
@@ -51,7 +52,7 @@ class AWS4SignerForAuthorizationHeader(val awsCredentialsProvider: AwsCredential
     val canonicalizedHeaders = getCanonicalizedHeaderString(headers)
     val canonicalizedQueryParameters = getCanonicalizedQueryString(queryParameters)
 
-    val bodyHash = toHex(hash(requestVar.getBody.getOrElse(Array.empty)))
+    val bodyHash = BinaryUtils.toHex(BinaryUtils.hash(requestVar.getBody.getOrElse(Array.empty)))
 
     val canonicalrequestVar = getCanonicalRequest(endpointUrl, requestVar.method, canonicalizedQueryParameters, canonicalizedHeaderNames, canonicalizedHeaders, bodyHash)
     log.debug("Canonical requestVar: {}", canonicalrequestVar)
@@ -86,7 +87,7 @@ class AWS4SignerForAuthorizationHeader(val awsCredentialsProvider: AwsCredential
 
     val credentialsAuthorizationHeader = "Credential=" + awsCredentials.awsAccessKeyId + "/" + scope
     val signedHeadersAuthorizationHeader = "SignedHeaders=" + canonicalizedHeaderNames
-    val signatureAuthorizationHeader = "Signature=" + toHex(signature)
+    val signatureAuthorizationHeader = "Signature=" + BinaryUtils.toHex(signature)
 
     val authorizationHeader = SCHEME + "-" + ALGORITHM + " " + credentialsAuthorizationHeader + ", " + signedHeadersAuthorizationHeader + ", " + signatureAuthorizationHeader
     authorizationHeader
