@@ -4,12 +4,16 @@ package com.github.bomgar.auth
 import java.net.URL
 import java.time.Instant
 
+import akka.actor.Status.Success
 import com.github.bomgar.auth.credentials.{AwsCredentials, AwsCredentialsProvider}
 import org.slf4j.LoggerFactory
 import play.api.libs.ws.{WSRequest, WSSignatureCalculator}
+import com.github.bomgar.Region
+
+import scala.util.Try
 
 
-class AWS4SignerForAuthorizationHeader(val awsCredentialsProvider: AwsCredentialsProvider, val regionName: String, val serviceName: String)
+class AWS4SignerForAuthorizationHeader(val awsCredentialsProvider: AwsCredentialsProvider, val region: Region.Type, val serviceName: String)
   extends AWS4SignerBase
   with WSSignatureCalculator {
 
@@ -27,7 +31,10 @@ class AWS4SignerForAuthorizationHeader(val awsCredentialsProvider: AwsCredential
     addHostHeader(request, endpointUrl)
 
     val headers = removeMultiples(request.allHeaders)
-    val queryParameters = removeMultiples(request.queryString)
+
+    val queryString = Try(request.queryString).toOption.getOrElse(Map.empty[String, Seq[String]])
+
+    val queryParameters = removeMultiples(queryString)
 
     val canonicalizedHeaderNames = getCanonicalizeHeaderNames(headers)
     val canonicalizedHeaders = getCanonicalizedHeaderString(headers)
@@ -39,7 +46,7 @@ class AWS4SignerForAuthorizationHeader(val awsCredentialsProvider: AwsCredential
     log.debug("Canonical request: {}", canonicalRequest)
 
     val dateStamp = dateStampFormat.format(requestDate)
-    val scope = dateStamp + "/" + regionName + "/" + serviceName + "/" + TERMINATOR
+    val scope = dateStamp + "/" + region.toString + "/" + serviceName + "/" + TERMINATOR
     val stringToSign = getStringToSign(SCHEME, ALGORITHM, dateTimeStamp, scope, canonicalRequest)
 
     log.debug("String to sign: {}", stringToSign)
@@ -53,7 +60,7 @@ class AWS4SignerForAuthorizationHeader(val awsCredentialsProvider: AwsCredential
     // compute the signing key
     val kSecret: Array[Byte] = (SCHEME + awsCredentials.awsSecretKey).getBytes
     val kDate: Array[Byte] = sign(dateStamp, kSecret, "HmacSHA256")
-    val kRegion: Array[Byte] = sign(regionName, kDate, "HmacSHA256")
+    val kRegion: Array[Byte] = sign(region.toString, kDate, "HmacSHA256")
     val kService: Array[Byte] = sign(serviceName, kRegion, "HmacSHA256")
     val kSigning: Array[Byte] = sign(TERMINATOR, kService, "HmacSHA256")
     val signature: Array[Byte] = sign(stringToSign, kSigning, "HmacSHA256")

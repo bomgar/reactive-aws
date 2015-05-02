@@ -1,0 +1,3 @@
+package com.github.bomgar.auth.credentials
+
+case class BasicAwsCredentialsProvider(awsCredentials: BasicAwsCredentials) extends AwsCredentialsProvider
