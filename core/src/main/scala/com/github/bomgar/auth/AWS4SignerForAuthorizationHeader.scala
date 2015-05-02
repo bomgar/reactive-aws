@@ -33,27 +33,25 @@ class AWS4SignerForAuthorizationHeader(
     val requestVarDate: Instant = Instant.now(clock)
     val endpointUrl = new URL(requestVar.url)
 
-    var headers = removeMultiples(requestVar.allHeaders)
+    val headers = removeMultiples(requestVar.allHeaders)
+    var additionalHeaders = Map.empty[String, String]
+
 
     // convert to ISO 8601 format for use in signature generation
     val dateTimeStamp: String = dateTimeFormat.format(requestVarDate)
-    requestVar = requestVar.setHeader("x-amz-date", dateTimeStamp)
-    headers += ("x-amz-date" -> dateTimeStamp)
+    additionalHeaders += ("x-amz-date" -> dateTimeStamp)
 
 
     val port: Int = endpointUrl.getPort
     val hostHeader: String = createHostHeader(endpointUrl, port)
-    requestVar = requestVar.setHeader("Host", hostHeader)
-    headers += ("Host" -> hostHeader)
-
-
+    additionalHeaders += ("Host" -> hostHeader)
 
     val queryString = Try(requestVar.queryString).toOption.getOrElse(Map.empty[String, Seq[String]])
 
     val queryParameters = removeMultiples(queryString)
 
-    val canonicalizedHeaderNames = getCanonicalizeHeaderNames(headers)
-    val canonicalizedHeaders = getCanonicalizedHeaderString(headers)
+    val canonicalizedHeaderNames = getCanonicalizeHeaderNames(headers ++ additionalHeaders)
+    val canonicalizedHeaders = getCanonicalizedHeaderString(headers ++ additionalHeaders)
     val canonicalizedQueryParameters = getCanonicalizedQueryString(queryParameters)
 
     val bodyHash = BinaryUtils.toHex(BinaryUtils.hash(requestVar.getBody.getOrElse(Array.empty)))
@@ -68,8 +66,20 @@ class AWS4SignerForAuthorizationHeader(
     log.debug("String to sign: {}", stringToSign)
 
     val authorizationHeader: String = createAuthorizationHeader(awsCredentials, canonicalizedHeaderNames, dateStamp, scope, stringToSign)
-    requestVar = request.setHeader("Authorization", authorizationHeader)
+    additionalHeaders += ("Authorization" -> authorizationHeader)
 
+    requestVar = applyHeadersToRequest(requestVar, additionalHeaders)
+
+  }
+
+  private def applyHeadersToRequest(request: WSRequest, headers: Map[String, String]): WSRequest = {
+    var requestVar = request
+
+    headers.foreach {
+      case (headerKey, headerValue) =>
+        requestVar = requestVar.setHeader(headerKey, headerValue)
+    }
+    requestVar
   }
 
   private def createHostHeader(endpointUrl: URL, port: Int): String = {
