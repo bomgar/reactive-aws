@@ -54,12 +54,12 @@ class AWS4SignerForAuthorizationHeader(val awsCredentialsProvider: AwsCredential
 
     val bodyHash = BinaryUtils.toHex(BinaryUtils.hash(requestVar.getBody.getOrElse(Array.empty)))
 
-    val canonicalrequestVar = getCanonicalRequest(endpointUrl, requestVar.method, canonicalizedQueryParameters, canonicalizedHeaderNames, canonicalizedHeaders, bodyHash)
-    log.debug("Canonical requestVar: {}", canonicalrequestVar)
+    val canonicalrequest = getCanonicalRequest(endpointUrl, requestVar.method, canonicalizedQueryParameters, canonicalizedHeaderNames, canonicalizedHeaders, bodyHash)
+    log.debug("Canonical requestVar: {}", canonicalrequest)
 
     val dateStamp = dateStampFormat.format(requestVarDate)
     val scope = dateStamp + "/" + region.toString + "/" + serviceName + "/" + TERMINATOR
-    val stringToSign = getStringToSign(SCHEME, ALGORITHM, dateTimeStamp, scope, canonicalrequestVar)
+    val stringToSign = getStringToSign(SCHEME, ALGORITHM, dateTimeStamp, scope, canonicalrequest)
 
     log.debug("String to sign: {}", stringToSign)
 

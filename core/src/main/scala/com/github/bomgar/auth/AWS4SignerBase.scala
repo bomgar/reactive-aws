@@ -44,11 +44,12 @@ class AWS4SignerBase {
    * the signature. For AWS4, all header names must be included in the process
    * in sorted canonicalized order.
    */
-  protected def getCanonicalizeHeaderNames(headers: Map[String, String]): String = {
+  def getCanonicalizeHeaderNames(headers: Map[String, String]): String = {
     headers
       .map(_._1)
       .toList
-      .sortWith(_.toLowerCase < _.toLowerCase)
+      .map(_.toLowerCase)
+      .sorted
       .mkString(";")
   }
 
@@ -56,7 +57,7 @@ class AWS4SignerBase {
    * Computes the canonical headers with values for the request. For AWS4, all
    * headers must be included in the signing process.
    */
-  protected def getCanonicalizedHeaderString(headers: Map[String, String]): String = {
+  def getCanonicalizedHeaderString(headers: Map[String, String]): String = {
     headers
       .map(_._1)
       .toList
@@ -70,7 +71,7 @@ class AWS4SignerBase {
        consists of several canonical sub-parts.
    * @return
    */
-  protected def getCanonicalRequest(endpoint: URL, httpMethod: String, queryParameters: String, canonicalizedHeaderNames: String, canonicalizedHeaders: String, bodyHash: String): String = {
+  def getCanonicalRequest(endpoint: URL, httpMethod: String, queryParameters: String, canonicalizedHeaderNames: String, canonicalizedHeaders: String, bodyHash: String): String = {
     httpMethod + "\n" +
       getCanonicalizedResourcePath(endpoint) + "\n" +
       queryParameters + "\n" +
@@ -82,10 +83,10 @@ class AWS4SignerBase {
   /**
    * Returns the canonicalized resource path for the service endpoint.
    */
-  protected def getCanonicalizedResourcePath(endpoint: URL): String = {
+  def getCanonicalizedResourcePath(endpoint: URL): String = {
     Option(endpoint)
       .map(_.getPath)
-      .filter(_.isEmpty)
+      .filter(!_.isEmpty)
       .map(path => urlEncode(path, keepPathSlash = true))
       .map(encodedPath =>
       if (encodedPath.startsWith("/")) encodedPath
