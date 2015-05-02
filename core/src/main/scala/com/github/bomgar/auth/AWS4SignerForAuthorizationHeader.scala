@@ -28,20 +28,19 @@ class AWS4SignerForAuthorizationHeader(
   val log = LoggerFactory.getLogger(getClass)
 
   override def sign(request: WSRequest): Unit = {
-    var requestVar = request
     val awsCredentials = awsCredentialsProvider.awsCredentials
     val requestDate: Instant = Instant.now(clock)
-    val endpointUrl = new URL(requestVar.url)
+    val endpointUrl = new URL(request.url)
     val dateTimeStamp: String = dateTimeFormat.format(requestDate)
 
-    val headers = removeMultiples(requestVar.allHeaders)
+    val headers = removeMultiples(request.allHeaders)
     val additionalHeadersToSign = computeAdditionalHeaders(endpointUrl, dateTimeStamp)
 
-    val queryString = Try(requestVar.queryString).toOption.getOrElse(Map.empty[String, Seq[String]])
+    val queryString = Try(request.queryString).toOption.getOrElse(Map.empty[String, Seq[String]])
 
     val queryParameters = removeMultiples(queryString)
 
-    val bodyHash = BinaryUtils.toHex(BinaryUtils.hash(requestVar.getBody.getOrElse(Array.empty)))
+    val bodyHash = BinaryUtils.toHex(BinaryUtils.hash(request.getBody.getOrElse(Array.empty)))
 
     val canonicalRequest = new CanonicalRequest(new URL(request.url), request.method, headers ++ additionalHeadersToSign, queryParameters, bodyHash)
 
@@ -54,8 +53,7 @@ class AWS4SignerForAuthorizationHeader(
     log.debug("String to sign: {}", stringToSign)
 
     val authorizationHeader: String = createAuthorizationHeader(awsCredentials, canonicalRequest.canonicalizedHeaderNames, dateStamp, scope, stringToSign)
-    requestVar = applyHeadersToRequest(requestVar, additionalHeadersToSign + ("Authorization" -> authorizationHeader))
-
+    applyHeadersToRequest(request, additionalHeadersToSign + ("Authorization" -> authorizationHeader))
   }
 
   private def computeAdditionalHeaders(endpointUrl: URL, timestamp: String): Map[String, String] = {
