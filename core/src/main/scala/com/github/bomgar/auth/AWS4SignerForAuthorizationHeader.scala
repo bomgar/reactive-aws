@@ -66,13 +66,15 @@ class AWS4SignerForAuthorizationHeader(
   }
 
   private def applyHeadersToRequest(request: WSRequest, headers: Map[String, String]): WSRequest = {
-    var requestVar = request
 
-    headers.foreach {
-      case (headerKey, headerValue) =>
-        requestVar = requestVar.setHeader(headerKey, headerValue)
+    val headersIterator: Iterator[(String, String)] = headers.iterator
+
+    def addHeader(request: WSRequest, header: (String,String)): WSRequest = {
+      val (key, value) = header
+      request.setHeader(key, value)
     }
-    requestVar
+
+    headersIterator.foldLeft(request)(addHeader)
   }
 
   private def createHostHeader(endpointUrl: URL, port: Int): String = {
