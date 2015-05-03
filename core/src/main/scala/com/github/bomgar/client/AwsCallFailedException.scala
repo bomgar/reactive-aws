@@ -11,7 +11,7 @@ case class AwsCallFailedException(
                                    errorType: Option[String],
                                    errorCode: Option[String],
                                    detail: Option[String]
-                                   ) extends RuntimeException
+                                   ) extends RuntimeException(message.getOrElse("Unknown Error"))
 
 object AwsCallFailedException {
   def fromErrorResponse(status: Int, responseBody: String): AwsCallFailedException = {

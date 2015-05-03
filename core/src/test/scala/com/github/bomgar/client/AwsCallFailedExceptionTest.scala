@@ -25,6 +25,8 @@ class AwsCallFailedExceptionTest extends Specification {
       exception.detail must beNone
       exception.errorCode must beSome("InvalidParameterValue")
       exception.message must beSome("Queue name cannot be empty")
+
+      exception.getMessage must be equalTo "Queue name cannot be empty"
     }
 
     "be created by a error response on invalid body" in {
