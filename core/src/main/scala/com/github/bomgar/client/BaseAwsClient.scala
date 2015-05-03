@@ -7,7 +7,8 @@ import com.github.bomgar.Region
 import com.github.bomgar.auth.AWS4SignerForAuthorizationHeader
 import com.github.bomgar.auth.credentials.AwsCredentialsProvider
 import org.slf4j.LoggerFactory
-import play.api.libs.ws.WSClient
+import play.api.http.Status._
+import play.api.libs.ws.{WSClient, WSResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.Elem
@@ -34,11 +35,18 @@ class BaseAwsClient(
       .sign(signer)
       .post(body)
 
-    response.map { response =>
-      log.debug("AWS response: {}", response.body)
-      response.xml
-    }
+    extractFromResponse(response)(_.xml)
+  }
 
+  private def extractFromResponse[T](responseFuture: Future[WSResponse])(extractor: (WSResponse => T)): Future[T] = {
+    responseFuture.flatMap { response =>
+      log.debug("AWS response status: '{}' body: '{}'", response.status, response.body)
+      if (response.status == OK) {
+        Future.successful(extractor(response))
+      } else {
+        Future.failed(new AwsCallFailedException(response))
+      }
+    }
   }
 
   private def encodeParameters(actionParameters: Map[String, String]): String = {
