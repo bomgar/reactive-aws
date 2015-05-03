@@ -44,7 +44,7 @@ class BaseAwsClient(
       if (response.status == OK) {
         Future.successful(extractor(response))
       } else {
-        Future.failed(new AwsCallFailedException(response))
+        Future.failed(AwsCallFailedException.fromErrorResponse(response.status, response.body))
       }
     }
   }
