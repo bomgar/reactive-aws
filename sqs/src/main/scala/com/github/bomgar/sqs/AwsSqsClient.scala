@@ -4,26 +4,24 @@ import com.github.bomgar.Region
 import com.github.bomgar.auth.credentials.AwsCredentialsProvider
 import com.github.bomgar.client.BaseAwsClient
 import com.github.bomgar.sqs.domain.QueueReference
-import org.slf4j.LoggerFactory
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.xml.Elem
 
 
 class AwsSqsClient(credentialsProvider: AwsCredentialsProvider, region: Region.Type, client: WSClient)(implicit executionContext: ExecutionContext)
   extends BaseAwsClient(credentialsProvider, region, client, "sqs") {
 
   def listQueues(): Future[Seq[QueueReference]] = {
-    val response = client.url(baseUrl)
-      .withHeaders(
-        "Content-Type" -> "application/x-www-form-urlencoded"
-      )
-      .sign(signer)
-      .post("Action=ListQueues&Version=2012-11-05")
+    val actionParameters = Map(
+      "Action" -> "ListQueues",
+      "Version" -> "2012-11-05"
+    )
 
-    response.map{response =>
-      log.debug("AWS response: {}", response.body)
-      response.xml
-    }.map(QueueReference.fromListQueueResult)
+    executeFormEncodedAction(actionParameters)
+      .map(QueueReference.fromListQueueResult)
   }
+
+
 }
