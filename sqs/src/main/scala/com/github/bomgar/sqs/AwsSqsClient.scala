@@ -7,7 +7,6 @@ import com.github.bomgar.sqs.domain.QueueReference
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.xml.Elem
 
 
 class AwsSqsClient(credentialsProvider: AwsCredentialsProvider, region: Region.Type, client: WSClient)(implicit executionContext: ExecutionContext)
@@ -21,6 +20,18 @@ class AwsSqsClient(credentialsProvider: AwsCredentialsProvider, region: Region.T
 
     executeFormEncodedAction(actionParameters)
       .map(QueueReference.fromListQueueResult)
+  }
+
+  def getQueueByName(queueName: String): Future[QueueReference] = {
+    val actionParameters = Map(
+      "Action" -> "GetQueueUrl",
+      "Version" -> "2012-11-05",
+      "QueueName" -> "test-queue"
+    )
+
+    executeFormEncodedAction(actionParameters)
+      .map(QueueReference.fromQueueUrlResult)
+
   }
 
 

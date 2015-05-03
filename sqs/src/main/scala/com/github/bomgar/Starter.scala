@@ -24,6 +24,7 @@ object Starter extends App {
 
   val client = new AwsSqsClient(new BasicAwsCredentialsProvider(awsCredentials), region, wsClient: WSClient)
   println(Await.result(client.listQueues(), 2.seconds))
+  println(Await.result(client.getQueueByName("test-queue"), 2.seconds))
 
   wsClient.close()
 }

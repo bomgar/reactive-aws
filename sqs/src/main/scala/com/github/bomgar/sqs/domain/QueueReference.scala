@@ -8,4 +8,8 @@ object QueueReference {
   def fromListQueueResult(listQueueResult: Elem): Seq[QueueReference] = {
     (listQueueResult \\ "QueueUrl").map(queueUrl => new QueueReference(queueUrl.text))
   }
+
+  def fromQueueUrlResult(listQueueResult: Elem): QueueReference = {
+    (listQueueResult \\ "QueueUrl").map(queueUrl => new QueueReference(queueUrl.text)).head
+  }
 }
