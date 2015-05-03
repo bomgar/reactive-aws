@@ -1,5 +1,8 @@
 package com.github.bomgar.client
 
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+
 import com.github.bomgar.Region
 import com.github.bomgar.auth.AWS4SignerForAuthorizationHeader
 import com.github.bomgar.auth.credentials.AwsCredentialsProvider
@@ -23,15 +26,11 @@ class BaseAwsClient(
   val signer = new AWS4SignerForAuthorizationHeader(credentialsProvider, region, serviceName)
 
   protected def executeFormEncodedAction(actionParameters: Map[String, String]): Future[Elem] = {
-    val body = actionParameters.toSeq.map {
-      case (key, value) => s"$key=$value"
-    }.mkString("&")
+    val body: String = encodeParameters(actionParameters)
 
     val response = client
       .url(baseUrl)
-      .withHeaders(
-        "Content-Type" -> "application/x-www-form-urlencoded"
-      )
+      .withHeaders("Content-Type" -> "application/x-www-form-urlencoded")
       .sign(signer)
       .post(body)
 
@@ -40,5 +39,14 @@ class BaseAwsClient(
       response.xml
     }
 
+  }
+
+  private def encodeParameters(actionParameters: Map[String, String]): String = {
+    actionParameters.toSeq.map {
+      case (key, value) =>
+        URLEncoder.encode(key, StandardCharsets.UTF_8.toString) +
+          "=" +
+          URLEncoder.encode(value, StandardCharsets.UTF_8.toString)
+    }.mkString("&")
   }
 }
