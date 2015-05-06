@@ -32,10 +32,16 @@ object IntegrationTestStarter extends App with SpecificationFeatures with Future
   val queue = testCreateQueue()
   testListQueues()
   testGetQueue()
-  testDeleteQueue(queue)
+  testSendMessage()
+  testDeleteQueue()
 
   wsClient.close()
 
+  private def testSendMessage(): Unit = {
+    val writer = client.newWriterForQueue(queue)
+    val message = await(writer.sendMessage("test"))
+    message.md5OfMessageBody must be equalTo "098f6bcd4621d373cade4e832627b4f6"
+  }
 
   private def testCreateQueue(): QueueReference = {
     val testQueue = await(client.createQueue(queueName))
@@ -44,7 +50,7 @@ object IntegrationTestStarter extends App with SpecificationFeatures with Future
     testQueue
   }
 
-  private def testDeleteQueue(queue: QueueReference): Unit = {
+  private def testDeleteQueue(): Unit = {
     await(client.deleteQueue(queue))
   }
 
