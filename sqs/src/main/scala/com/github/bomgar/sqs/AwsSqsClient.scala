@@ -26,7 +26,7 @@ class AwsSqsClient(credentialsProvider: AwsCredentialsProvider, region: Region.T
     val actionParameters = Map(
       "Action" -> "GetQueueUrl",
       "Version" -> "2012-11-05",
-      "QueueName" -> "test-queue"
+      "QueueName" -> queueName
     )
 
     executeFormEncodedAction(actionParameters)
@@ -34,5 +34,15 @@ class AwsSqsClient(credentialsProvider: AwsCredentialsProvider, region: Region.T
 
   }
 
+  def createQueue(queueName: String): Future[QueueReference] = {
+    val actionParameters = Map(
+      "Action" -> "CreateQueue",
+      "Version" -> "2012-11-05",
+      "QueueName" -> queueName
+    )
 
+    executeFormEncodedAction(actionParameters)
+      .map(QueueReference.fromCreateQueueResult)
+
+  }
 }

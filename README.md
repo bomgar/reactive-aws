@@ -11,4 +11,5 @@ Create an aws sdk that is non-blocking.
 * SQS
   * List queues
   * Queue url by name
+  * Create Queue
 

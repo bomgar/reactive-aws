@@ -7,12 +7,11 @@ import com.ning.http.client.AsyncHttpClientConfig.Builder
 import org.specs2.specification.mutable.SpecificationFeatures
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.ning.NingWSClient
+import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 
-import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 
-object IntegrationTestStarter extends App with SpecificationFeatures {
+object IntegrationTestStarter extends App with SpecificationFeatures with FutureAwaits with DefaultAwaitTimeout {
 
   val accessKey = args(0)
   val secretKey = args(1)
@@ -26,20 +25,27 @@ object IntegrationTestStarter extends App with SpecificationFeatures {
 
   val client = new AwsSqsClient(new BasicAwsCredentialsProvider(awsCredentials), region, wsClient: WSClient)
 
+  testCreateQueue()
   testListQueues()
   testGetQueue()
 
   wsClient.close()
 
 
+  private def testCreateQueue(): Unit = {
+    val testQueue = await(client.createQueue("test-queue"))
+    println(testQueue)
+    testQueue.url must contain("test-queue")
+  }
+
   private def testGetQueue(): Unit = {
-    val testQueue = Await.result(client.getQueueByName("test-queue"), 2.seconds)
+    val testQueue = await(client.getQueueByName("test-queue"))
     println(testQueue)
     testQueue.url must contain("test-queue")
   }
 
   private def testListQueues(): Unit = {
-    val queues = Await.result(client.listQueues(), 2.seconds)
+    val queues = await(client.listQueues())
     println(queues)
     queues must have size 1
   }
