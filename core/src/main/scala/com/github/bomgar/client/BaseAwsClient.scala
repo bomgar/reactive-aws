@@ -26,11 +26,11 @@ class BaseAwsClient(
 
   val signer = new AWS4SignerForAuthorizationHeader(credentialsProvider, region, serviceName)
 
-  protected def executeFormEncodedAction(actionParameters: Map[String, String]): Future[Elem] = {
+  protected def executeFormEncodedAction(actionParameters: Map[String, String], url: String = baseUrl): Future[Elem] = {
     val body: String = encodeParameters(actionParameters)
 
     val response = client
-      .url(baseUrl)
+      .url(url)
       .withHeaders("Content-Type" -> "application/x-www-form-urlencoded")
       .sign(signer)
       .post(body)

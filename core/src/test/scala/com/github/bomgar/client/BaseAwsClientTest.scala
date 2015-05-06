@@ -19,8 +19,8 @@ class BaseAwsClientTest extends Specification with Mockito with FutureAwaits wit
   val credentialsProvider = new BasicAwsCredentialsProvider(awsCredentials)
 
   class TestAwsClient(wsClient: WSClient) extends BaseAwsClient(credentialsProvider, Region.AP_NORTHEAST_1, wsClient, "test") {
-    override def executeFormEncodedAction(actionParameters: Map[String, String]): Future[Elem] =
-      super.executeFormEncodedAction(actionParameters)
+    override def executeFormEncodedAction(actionParameters: Map[String, String], url: String): Future[Elem] =
+      super.executeFormEncodedAction(actionParameters, url)
   }
 
   "A base aws client" should {

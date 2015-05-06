@@ -10,11 +10,15 @@ import play.api.libs.ws.ning.NingWSClient
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 
 object IntegrationTestStarter extends App with SpecificationFeatures with FutureAwaits with DefaultAwaitTimeout {
 
   val accessKey = args(0)
   val secretKey = args(1)
+
+  val queueName: String = Random.alphanumeric.take(10).mkString
+
   val awsCredentials = new BasicAwsCredentials(awsAccessKeyId = accessKey, awsSecretKey = secretKey)
   val region = Region.EU_WEST_1
 
@@ -25,28 +29,34 @@ object IntegrationTestStarter extends App with SpecificationFeatures with Future
 
   val client = new AwsSqsClient(new BasicAwsCredentialsProvider(awsCredentials), region, wsClient: WSClient)
 
-  testCreateQueue()
+  val queue = testCreateQueue()
   testListQueues()
   testGetQueue()
+  testDeleteQueue(queue)
 
   wsClient.close()
 
 
-  private def testCreateQueue(): Unit = {
-    val testQueue = await(client.createQueue("test-queue"))
+  private def testCreateQueue(): QueueReference = {
+    val testQueue = await(client.createQueue(queueName))
     println(testQueue)
-    testQueue.url must contain("test-queue")
+    testQueue.url must contain(queueName)
+    testQueue
+  }
+
+  private def testDeleteQueue(queue: QueueReference): Unit = {
+    await(client.deleteQueue(queue))
   }
 
   private def testGetQueue(): Unit = {
-    val testQueue = await(client.getQueueByName("test-queue"))
+    val testQueue = await(client.getQueueByName(queueName))
     println(testQueue)
-    testQueue.url must contain("test-queue")
+    testQueue.url must contain(queueName)
   }
 
   private def testListQueues(): Unit = {
     val queues = await(client.listQueues())
     println(queues)
-    queues must have size 1
+    queues.length must be greaterThanOrEqualTo 1
   }
 }

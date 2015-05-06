@@ -45,4 +45,12 @@ class AwsSqsClient(credentialsProvider: AwsCredentialsProvider, region: Region.T
       .map(QueueReference.fromCreateQueueResult)
 
   }
+
+  def deleteQueue(queue: QueueReference): Future[Unit] = {
+    val actionParameters = Map(
+      "Action" -> "DeleteQueue",
+      "Version" -> "2012-11-05"
+    )
+    executeFormEncodedAction(actionParameters, queue.url).map(_ => ())
+  }
 }
