@@ -80,7 +80,7 @@ class AwsSqsClient(
       "MaxNumberOfMessages" -> maxNumberOfMessages.toString
     )
 
-    val actionParametersWithWaitTime = waitTimeInSeconds.fold(actionParameters)(seconds => actionParameters + ("WaitTimeSeconds=" -> seconds.toString))
+    val actionParametersWithWaitTime = waitTimeInSeconds.fold(actionParameters)(seconds => actionParameters + ("WaitTimeSeconds" -> seconds.toString))
 
     val timeout = waitTimeInSeconds.fold(defaultTimeout)(seconds => defaultTimeout + Duration(seconds, SECONDS))
 
