@@ -22,7 +22,7 @@ object IntegrationTestStarter extends App with SpecificationFeatures with Future
   val awsCredentials = new BasicAwsCredentials(awsAccessKeyId = accessKey, awsSecretKey = secretKey)
   val region = Region.EU_WEST_1
 
-  println(awsCredentials)
+  val messageBody: String = "test"
 
   val ningConfig = new Builder().build()
   val wsClient: NingWSClient = new NingWSClient(ningConfig)
@@ -33,14 +33,21 @@ object IntegrationTestStarter extends App with SpecificationFeatures with Future
   testListQueues()
   testGetQueue()
   testSendMessage()
+  testGetMessage()
   testDeleteQueue()
 
   wsClient.close()
 
   private def testSendMessage(): Unit = {
     val writer = client.newWriterForQueue(queue)
-    val message = await(writer.sendMessage("test"))
+    val message = await(writer.sendMessage(messageBody))
     message.md5OfMessageBody must be equalTo "098f6bcd4621d373cade4e832627b4f6"
+  }
+
+  private def testGetMessage(): Unit = {
+    val reader = client.newReaderForQueue(queue)
+    val message = await(reader.longPollSingleMessage(10))
+    message.get.body must be equalTo messageBody
   }
 
   private def testCreateQueue(): QueueReference = {

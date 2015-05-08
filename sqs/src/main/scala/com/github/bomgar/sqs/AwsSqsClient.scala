@@ -3,11 +3,11 @@ package com.github.bomgar.sqs
 import com.github.bomgar.Region
 import com.github.bomgar.auth.credentials.AwsCredentialsProvider
 import com.github.bomgar.client.BaseAwsClient
-import com.github.bomgar.sqs.domain.{MessageReference, QueueReference}
+import com.github.bomgar.sqs.domain.{Message, MessageReference, QueueReference}
 import play.api.libs.ws.WSClient
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class AwsSqsClient(
@@ -72,4 +72,21 @@ class AwsSqsClient(
   }
 
   def newWriterForQueue(queue: QueueReference) = new QueueWriter(this, queue)
+
+  private[sqs] def receiveMessages(queue: QueueReference, maxNumberOfMessages: Int = 1, waitTimeInSeconds: Option[Int] = None): Future[Seq[Message]] = {
+    val actionParameters = Map(
+      "Action" -> "ReceiveMessage",
+      "Version" -> "2012-11-05",
+      "MaxNumberOfMessages" -> maxNumberOfMessages.toString
+    )
+
+    val actionParametersWithWaitTime = waitTimeInSeconds.fold(actionParameters)(seconds => actionParameters + ("WaitTimeSeconds=" -> seconds.toString))
+
+    val timeout = waitTimeInSeconds.fold(defaultTimeout)(seconds => Duration(seconds, SECONDS))
+
+    executeFormEncodedAction(actionParametersWithWaitTime, queue.url, timeout)
+      .map(Message.fromReceiveMessageResult)
+  }
+
+  def newReaderForQueue(queue: QueueReference) = new QueueReader(this, queue)
 }

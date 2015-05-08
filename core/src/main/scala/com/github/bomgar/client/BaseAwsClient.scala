@@ -28,14 +28,14 @@ class BaseAwsClient(
 
   val signer = new AWS4SignerForAuthorizationHeader(credentialsProvider, region, serviceName)
 
-  protected def executeFormEncodedAction(actionParameters: Map[String, String], url: String = baseUrl): Future[Elem] = {
+  protected def executeFormEncodedAction(actionParameters: Map[String, String], url: String = baseUrl, timeout: Duration = defaultTimeout): Future[Elem] = {
     val body: String = encodeParameters(actionParameters)
 
     val response = client
       .url(url)
       .withHeaders("Content-Type" -> "application/x-www-form-urlencoded")
       .sign(signer)
-      .withRequestTimeout(defaultTimeout.toMillis.toInt)
+      .withRequestTimeout(timeout.toMillis.toInt)
       .post(body)
 
     extractFromResponse(response)(_.xml)
