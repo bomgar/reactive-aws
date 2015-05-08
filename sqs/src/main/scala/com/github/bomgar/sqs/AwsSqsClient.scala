@@ -82,7 +82,7 @@ class AwsSqsClient(
 
     val actionParametersWithWaitTime = waitTimeInSeconds.fold(actionParameters)(seconds => actionParameters + ("WaitTimeSeconds=" -> seconds.toString))
 
-    val timeout = waitTimeInSeconds.fold(defaultTimeout)(seconds => Duration(seconds, SECONDS))
+    val timeout = waitTimeInSeconds.fold(defaultTimeout)(seconds => defaultTimeout + Duration(seconds, SECONDS))
 
     executeFormEncodedAction(actionParametersWithWaitTime, queue.url, timeout)
       .map(Message.fromReceiveMessageResult)
