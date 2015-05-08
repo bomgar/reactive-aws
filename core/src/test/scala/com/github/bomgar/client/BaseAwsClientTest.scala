@@ -11,6 +11,7 @@ import scala.concurrent.Future
 import scala.xml.Elem
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.http.Status._
+import scala.concurrent.duration._
 
 class BaseAwsClientTest extends Specification with Mockito with FutureAwaits with DefaultAwaitTimeout {
 
@@ -18,7 +19,7 @@ class BaseAwsClientTest extends Specification with Mockito with FutureAwaits wit
 
   val credentialsProvider = new BasicAwsCredentialsProvider(awsCredentials)
 
-  class TestAwsClient(wsClient: WSClient) extends BaseAwsClient(credentialsProvider, Region.AP_NORTHEAST_1, wsClient, "test") {
+  class TestAwsClient(wsClient: WSClient) extends BaseAwsClient(credentialsProvider, Region.AP_NORTHEAST_1, wsClient, "test", 2.seconds) {
     override def executeFormEncodedAction(actionParameters: Map[String, String], url: String): Future[Elem] =
       super.executeFormEncodedAction(actionParameters, url)
   }
@@ -69,6 +70,7 @@ class BaseAwsClientTest extends Specification with Mockito with FutureAwaits wit
     wsClient.url(anyString) returns wsRequestHolder
     wsRequestHolder.sign(any[WSSignatureCalculator]) returns wsRequestHolder
     wsRequestHolder.withHeaders(anyVarArg[(String, String)]) returns wsRequestHolder
+    wsRequestHolder.withRequestTimeout(anyInt) returns wsRequestHolder
     wsRequestHolder.post(anyString)(any, any) returns wsResponseFuture
     (wsClient, wsResponse)
   }

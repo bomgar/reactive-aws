@@ -12,12 +12,14 @@ import play.api.libs.ws.{WSClient, WSResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.Elem
+import scala.concurrent.duration._
 
 class BaseAwsClient(
                      val credentialsProvider: AwsCredentialsProvider,
                      val region: Region.Type,
                      val client: WSClient,
-                     val serviceName: String
+                     val serviceName: String,
+                     val defaultTimeout: Duration
                      )(implicit executionContext: ExecutionContext) {
 
   val log = LoggerFactory.getLogger(getClass)
@@ -33,6 +35,7 @@ class BaseAwsClient(
       .url(url)
       .withHeaders("Content-Type" -> "application/x-www-form-urlencoded")
       .sign(signer)
+      .withRequestTimeout(defaultTimeout.toMillis.toInt)
       .post(body)
 
     extractFromResponse(response)(_.xml)

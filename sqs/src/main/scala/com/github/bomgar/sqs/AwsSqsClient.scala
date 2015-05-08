@@ -7,10 +7,15 @@ import com.github.bomgar.sqs.domain.{MessageReference, QueueReference}
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration._
 
 
-class AwsSqsClient(credentialsProvider: AwsCredentialsProvider, region: Region.Type, client: WSClient)(implicit executionContext: ExecutionContext)
-  extends BaseAwsClient(credentialsProvider, region, client, "sqs") {
+class AwsSqsClient(
+                    credentialsProvider: AwsCredentialsProvider,
+                    region: Region.Type, client: WSClient,
+                    defaultTimeout: Duration = 5.seconds
+                    )(implicit executionContext: ExecutionContext)
+  extends BaseAwsClient(credentialsProvider, region, client, "sqs", defaultTimeout) {
 
   def listQueues(): Future[Seq[QueueReference]] = {
     val actionParameters = Map(
