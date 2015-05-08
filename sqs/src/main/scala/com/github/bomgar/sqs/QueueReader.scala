@@ -30,7 +30,7 @@ class QueueReader private[sqs](sqsClient: AwsSqsClient, queueReference: QueueRef
   def receiveMessages(maxNumberOfMessages: Int): Future[Seq[Message]] =
     sqsClient.receiveMessages(queueReference, maxNumberOfMessages = 1)
 
-  def longPollMessages(maxNumberOfMessages: Int, waitTimeInSeconds: Int): Future[Option[Message]] =
-    sqsClient.receiveMessages(queueReference, maxNumberOfMessages = 1, waitTimeInSeconds = Some(waitTimeInSeconds)).map(_.headOption)
+  def longPollMessages(maxNumberOfMessages: Int, waitTimeInSeconds: Int): Future[Seq[Message]] =
+    sqsClient.receiveMessages(queueReference, maxNumberOfMessages = 1, waitTimeInSeconds = Some(waitTimeInSeconds))
 
 }
