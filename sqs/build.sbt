@@ -13,3 +13,5 @@ libraryDependencies ++= Seq(
   "org.specs2" %% "specs2-mock" % "3.5",
   "com.typesafe.play" %% "play-test" % "2.3.8"
 ).map(_ % "test")
+
+testOptions in Test += Tests.Argument("exclude", "integration")
