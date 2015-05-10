@@ -46,8 +46,10 @@ object IntegrationTestStarter extends App with SpecificationFeatures with Future
 
   private def testGetMessage(): Unit = {
     val reader = client.newReaderForQueue(queue)
-    val message = await(reader.longPollSingleMessage(10))
-    message.get.body must be equalTo messageBody
+    val message = await(reader.longPollSingleMessage(10)).get
+    message.body must be equalTo messageBody
+
+    await(reader.acknowledgeMessage(message))
   }
 
   private def testCreateQueue(): QueueReference = {

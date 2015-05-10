@@ -89,4 +89,13 @@ class AwsSqsClient(
   }
 
   def newReaderForQueue(queue: QueueReference) = new QueueReader(this, queue)
+
+  def deleteMessage(queue: QueueReference, receiptHandle: String): Future[Unit] = {
+    val actionParameters = Map(
+      "Action" -> "DeleteMessage",
+      "Version" -> "2012-11-05",
+      "ReceiptHandle" -> receiptHandle
+    )
+    executeFormEncodedAction(actionParameters, queue.url).map(_ => ())
+  }
 }

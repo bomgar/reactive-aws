@@ -15,4 +15,5 @@ Create an aws sdk that is non-blocking.
   * Delete Queue
   * send messages
   * receive messages
+  * acknowledge messages
 

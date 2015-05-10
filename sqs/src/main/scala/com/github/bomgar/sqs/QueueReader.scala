@@ -33,4 +33,8 @@ class QueueReader private[sqs](sqsClient: AwsSqsClient, queueReference: QueueRef
   def longPollMessages(maxNumberOfMessages: Int, waitTimeInSeconds: Int): Future[Seq[Message]] =
     sqsClient.receiveMessages(queueReference, maxNumberOfMessages = 1, waitTimeInSeconds = Some(waitTimeInSeconds))
 
+  def acknowledgeMessage(message: Message) = {
+    sqsClient.deleteMessage(queueReference, message.receiptHandle)
+  }
+
 }
