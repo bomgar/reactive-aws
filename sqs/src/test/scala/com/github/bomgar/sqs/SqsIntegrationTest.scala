@@ -1,12 +1,9 @@
 package com.github.bomgar.sqs
 
-import com.github.bomgar.Region
-import com.github.bomgar.auth.credentials.{BasicAwsCredentials, BasicAwsCredentialsProvider}
 import com.github.bomgar.sqs.testsupport.WithQueue
 import com.ning.http.client.AsyncHttpClientConfig.Builder
 import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
-import play.api.libs.ws.WSClient
 import play.api.libs.ws.ning.NingWSClient
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 
@@ -14,21 +11,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class SqsIntegrationTest extends Specification with FutureAwaits with DefaultAwaitTimeout with AfterAll {
 
-  val accessKey: String = Option(System.getenv("SQS_AWS_ACCESS_KEY")).getOrElse(throw new IllegalArgumentException("Missing variable SQS_AWS_ACCESS_KEY"))
-  val secretKey: String = Option(System.getenv("SQS_AWS_SECRET_KEY")).getOrElse(throw new IllegalArgumentException("Missing variable SQS_AWS_SECRET_KEY"))
-
-  val awsCredentials = new BasicAwsCredentials(awsAccessKeyId = accessKey, awsSecretKey = secretKey)
-  val region = Region.EU_WEST_1
-
   val ningConfig = new Builder().build()
   val wsClient: NingWSClient = new NingWSClient(ningConfig)
-
-  val client = new AwsSqsClient(new BasicAwsCredentialsProvider(awsCredentials), region, wsClient: WSClient)
 
   "A sqs client" should {
 
     tag("integration")
-    "send messages" in new WithQueue(client) {
+    "send messages" in new WithQueue(wsClient) {
       val messageBody: String = "test"
       val writer = client.newWriterForQueue(testQueue)
       val message = await(writer.sendMessage(messageBody))
@@ -36,7 +25,7 @@ class SqsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
     }
 
     tag("integration")
-    "receive messages" in new WithQueue(client) {
+    "receive messages" in new WithQueue(wsClient) {
       val messageBody: String = "test"
       val writer = client.newWriterForQueue(testQueue)
       await(writer.sendMessage(messageBody))
@@ -49,7 +38,7 @@ class SqsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
     }
 
     tag("integration")
-    "get queues" in new WithQueue(client) {
+    "get queues" in new WithQueue(wsClient) {
       val queue = testQueue
       val queueByName = await(client.getQueueByName(queueName))
       queueByName.url must contain(queueName)
@@ -57,7 +46,7 @@ class SqsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
     }
 
     tag("integration")
-    "list queues" in new WithQueue(client) {
+    "list queues" in new WithQueue(wsClient) {
       val queue = testQueue
       //amazon needs some time to include it in the list
       Thread.sleep(2000)
