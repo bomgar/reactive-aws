@@ -1,8 +1,8 @@
-package com.github.bomgar.sqs.domain
+package com.github.bomgar.sqs
 
 import com.github.bomgar.Region
 import com.github.bomgar.auth.credentials.{BasicAwsCredentials, BasicAwsCredentialsProvider}
-import com.github.bomgar.sqs.AwsSqsClient
+import com.github.bomgar.sqs.testsupport.WithQueue
 import com.ning.http.client.AsyncHttpClientConfig.Builder
 import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll

@@ -1,9 +1,8 @@
-package com.github.bomgar.sqs.domain
+package com.github.bomgar.sqs.testsupport
 
 import com.github.bomgar.sqs.AwsSqsClient
-import org.specs2.execute.AsResult
-import org.specs2.mutable.{Around, After}
-import org.specs2.specification.{AfterAll, SpecificationFeatures, Scope}
+import org.specs2.mutable.After
+import org.specs2.specification.Scope
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 
 import scala.util.Random
