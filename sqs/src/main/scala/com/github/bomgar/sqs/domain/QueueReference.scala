@@ -14,7 +14,7 @@ object QueueReference {
   }
 
 
-  def fromCreateQueueResult(listQueueResult: Elem): QueueReference = {
-    (listQueueResult \\ "QueueUrl").map(queueUrl => new QueueReference(queueUrl.text)).head
+  def fromCreateQueueResult(createQueueResult: Elem): QueueReference = {
+    (createQueueResult \\ "QueueUrl").map(queueUrl => new QueueReference(queueUrl.text)).head
   }
 }
