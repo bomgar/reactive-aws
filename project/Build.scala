@@ -7,6 +7,8 @@ object Build extends Build {
 
   lazy val sqs = project.in(file("sqs")).dependsOn(core)
 
+  lazy val sns = project.in(file("sns")).dependsOn(core)
+
   lazy val root =
     Project(
       id = "reactive-aws",
@@ -16,5 +18,5 @@ object Build extends Build {
         organization := "com.github.bomgar",
         version := "1.0",
         scalaVersion := "2.11.6"
-      ).aggregate(sqs, core)
+      ).aggregate(sqs, sns, core)
 }
