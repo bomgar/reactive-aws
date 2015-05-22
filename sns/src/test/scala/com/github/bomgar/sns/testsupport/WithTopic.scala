@@ -13,8 +13,8 @@ import scala.util.Random
 
 class WithTopic(wsClient: WSClient) extends Scope with FutureAwaits with DefaultAwaitTimeout with After {
 
-  lazy val accessKey: String = Option(System.getenv("SNS_AWS_ACCESS_KEY")).getOrElse(throw new IllegalArgumentException("Missing variable SQS_AWS_ACCESS_KEY"))
-  lazy val secretKey: String = Option(System.getenv("SNS_AWS_SECRET_KEY")).getOrElse(throw new IllegalArgumentException("Missing variable SQS_AWS_SECRET_KEY"))
+  lazy val accessKey: String = Option(System.getenv("SNS_AWS_ACCESS_KEY")).getOrElse(throw new IllegalArgumentException("Missing variable SNS_AWS_ACCESS_KEY"))
+  lazy val secretKey: String = Option(System.getenv("SNS_AWS_SECRET_KEY")).getOrElse(throw new IllegalArgumentException("Missing variable SNS_AWS_SECRET_KEY"))
 
   lazy val awsCredentials = new BasicAwsCredentials(awsAccessKeyId = accessKey, awsSecretKey = secretKey)
   lazy val region = Region.EU_CENTRAL_1
