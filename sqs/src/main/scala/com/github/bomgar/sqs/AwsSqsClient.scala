@@ -59,6 +59,14 @@ class AwsSqsClient(
     executeFormEncodedAction(actionParameters, queue.url).map(_ => ())
   }
 
+  def purgeQueue(queue: QueueReference): Future[Unit] = {
+    val actionParameters = Map(
+      "Action" -> "PurgeQueue",
+      "Version" -> "2012-11-05"
+    )
+    executeFormEncodedAction(actionParameters, queue.url).map(_ => ())
+  }
+
   private[sqs] def sendMessage(queue: QueueReference, message: String): Future[MessageReference] = {
     val actionParameters = Map(
       "Action" -> "SendMessage",
