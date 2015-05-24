@@ -12,6 +12,8 @@ class QueueAttributesSpec extends Specification {
             <Attribute>
               <Name>ApproximateNumberOfMessages</Name>
               <Value>0</Value>
+            </Attribute>
+            <Attribute>
               <Name>Other</Name>
               <Value>0</Value>
             </Attribute>
