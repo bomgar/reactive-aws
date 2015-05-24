@@ -60,7 +60,7 @@ class SqsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       val queue = testQueue
       await(client.purgeQueue(queue))
       val attributes = await(client.getQueueAttributes(queue, Seq(QueueAttributes.ApproximateNumberOfMessages)))
-      attributes.approximateNumberOfMessages must beSome("0")
+      attributes.approximateNumberOfMessages must beSome(0)
 
     }
   }

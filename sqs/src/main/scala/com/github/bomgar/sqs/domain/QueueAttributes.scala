@@ -1,25 +1,28 @@
 package com.github.bomgar.sqs.domain
 
+import java.time.{Instant, Duration}
+
 import scala.xml.Elem
 import QueueAttributes._
 
 case class QueueAttributes(attributes: Map[String, String]) {
-  def approximateNumberOfMessages: Option[String] = attributes.get(ApproximateNumberOfMessages)
-  def approximateNumberOfMessagesNotVisible: Option[String] = attributes.get(ApproximateNumberOfMessagesNotVisible)
-  def visibilityTimeout: Option[String] = attributes.get(VisibilityTimeout)
-  def lastModifiedTimestamp : Option[String] = attributes.get(LastModifiedTimestamp)
+  def approximateNumberOfMessages: Option[Long] = attributes.get(ApproximateNumberOfMessages).map(_.toLong)
+  def approximateNumberOfMessagesNotVisible: Option[Long] = attributes.get(ApproximateNumberOfMessagesNotVisible).map(_.toLong)
+  def visibilityTimeout: Option[Duration] = attributes.get(VisibilityTimeout).map(_.toLong).map(Duration.ofSeconds)
+  def lastModifiedTimestamp : Option[Instant] = attributes.get(LastModifiedTimestamp).map(_.toLong).map(Instant.ofEpochSecond)
   def policy: Option[String] = attributes.get(Policy)
-  def maximumMessageSize : Option[String] = attributes.get(MaximumMessageSize)
-  def messageRetentionPeriod: Option[String] = attributes.get(MessageRetentionPeriod)
+  def maximumMessageSize : Option[Long] = attributes.get(MaximumMessageSize).map(_.toLong)
+  def messageRetentionPeriod: Option[Duration] = attributes.get(MessageRetentionPeriod).map(_.toLong).map(Duration.ofSeconds)
   def queueArn : Option[String] = attributes.get(QueueArn)
-  def approximateNumberOfMessagesDelayed: Option[String] = attributes.get(ApproximateNumberOfMessagesDelayed)
-  def delaySeconds : Option[String] = attributes.get(DelaySeconds)
-  def receiveMessageWaitTimeSeconds: Option[String] = attributes.get(ReceiveMessageWaitTimeSeconds)
+  def approximateNumberOfMessagesDelayed: Option[Long] = attributes.get(ApproximateNumberOfMessagesDelayed).map(_.toLong)
+  def delay : Option[Duration] = attributes.get(DelaySeconds).map(_.toLong).map(Duration.ofSeconds)
+  def receiveMessageWaitTime: Option[Duration] = attributes.get(ReceiveMessageWaitTimeSeconds).map(_.toLong).map(Duration.ofSeconds)
   def redrivePolicy: Option[String] = attributes.get(RedrivePolicy)
 }
 
 object QueueAttributes {
 
+  val All = "All"
   val RedrivePolicy = "RedrivePolicy"
   val ReceiveMessageWaitTimeSeconds = "ReceiveMessageWaitTimeSeconds"
   val DelaySeconds = "DelaySeconds"
