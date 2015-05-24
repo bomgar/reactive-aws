@@ -1,6 +1,6 @@
 # Idea
 
-Create an aws sdk that is non-blocking.
+Create an aws sdk that is non-blocking and does **not** use the official amazon sdk under the hood.
 
 # Build
 
