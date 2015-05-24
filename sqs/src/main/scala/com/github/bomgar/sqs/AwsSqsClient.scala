@@ -3,7 +3,7 @@ package com.github.bomgar.sqs
 import com.github.bomgar.Region
 import com.github.bomgar.auth.credentials.AwsCredentialsProvider
 import com.github.bomgar.client.BaseAwsClient
-import com.github.bomgar.sqs.domain.{Message, MessageReference, QueueReference}
+import com.github.bomgar.sqs.domain.{QueueAttributes, Message, MessageReference, QueueReference}
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.duration._
@@ -94,6 +94,21 @@ class AwsSqsClient(
 
     executeFormEncodedAction(actionParametersWithWaitTime, queue.url, timeout)
       .map(Message.fromReceiveMessageResult)
+  }
+
+  private[sqs] def getQueueAttributes(queue: QueueReference, attributes: Seq[String]): Future[QueueAttributes] = {
+    val actionParameters = Map(
+      "Action" -> "GetQueueAttributes",
+      "Version" -> "2012-11-05"
+    )
+    val parametersWithAttributes = attributes.zipWithIndex.foldLeft(actionParameters) { (parameters, attribute) =>
+      val (attributeName, index) = attribute
+      parameters + (s"AttributeName.${index+1}" -> attributeName)
+    }
+
+    executeFormEncodedAction(parametersWithAttributes, queue.url)
+      .map(QueueAttributes.fromGetQueueAttributesResponse)
+
   }
 
   def newReaderForQueue(queue: QueueReference) = new QueueReader(this, queue)

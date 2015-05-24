@@ -25,7 +25,17 @@ class QueueAttributesSpec extends Specification {
 
       val queueAttributes = QueueAttributes.fromGetQueueAttributesResponse(getQueueAttributesResponse)
 
-      queueAttributes.attributes must havePair("ApproximateNumberOfMessages" -> "0")
+      queueAttributes.approximateNumberOfMessages must beSome("0")
+      queueAttributes.approximateNumberOfMessagesDelayed must beNone
+      queueAttributes.visibilityTimeout must beNone
+      queueAttributes.lastModifiedTimestamp must beNone
+      queueAttributes.policy must beNone
+      queueAttributes.maximumMessageSize must beNone
+      queueAttributes.messageRetentionPeriod must beNone
+      queueAttributes.queueArn must beNone
+      queueAttributes.delaySeconds must beNone
+      queueAttributes.receiveMessageWaitTimeSeconds must beNone
+      queueAttributes.redrivePolicy must beNone
       queueAttributes.attributes must havePair("Other" -> "0")
     }
   }

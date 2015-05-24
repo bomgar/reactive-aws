@@ -19,6 +19,7 @@ code is still an ugly scala adaptation of the amazon samples
 * receive messages
 * acknowledge messages
 * purge queues
+* get queue attributes
 
 ## SNS
 * Create topics1

@@ -1,5 +1,6 @@
 package com.github.bomgar.sqs
 
+import com.github.bomgar.sqs.domain.QueueAttributes
 import com.github.bomgar.sqs.testsupport.WithQueue
 import com.ning.http.client.AsyncHttpClientConfig.Builder
 import org.specs2.mutable.Specification
@@ -52,6 +53,15 @@ class SqsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       Thread.sleep(2000)
       val queues = await(client.listQueues())
       queues.length must be greaterThanOrEqualTo 1
+    }
+
+    tag("integration")
+    "get queue attributes" in new WithQueue(wsClient) {
+      val queue = testQueue
+      await(client.purgeQueue(queue))
+      val attributes = await(client.getQueueAttributes(queue, Seq(QueueAttributes.ApproximateNumberOfMessages)))
+      attributes.approximateNumberOfMessages must beSome("0")
+
     }
   }
 
