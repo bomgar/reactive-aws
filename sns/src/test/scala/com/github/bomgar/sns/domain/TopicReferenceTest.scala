@@ -6,7 +6,7 @@ class TopicReferenceTest extends Specification {
   "A TopicReference" should {
 
     "parse create topic result" in {
-      val createQueueResult =
+      val createTopicResult =
         <CreateTopicResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
           <CreateTopicResult>
             <TopicArn>arn:aws:sns:us-east-1:123456789012:My-Topic</TopicArn>
@@ -16,7 +16,7 @@ class TopicReferenceTest extends Specification {
           </ResponseMetadata>
         </CreateTopicResponse>
 
-      val topicArn = TopicReference.fromCreateTopicResult(createQueueResult).topicArn
+      val topicArn = TopicReference.fromCreateTopicResult(createTopicResult).topicArn
 
       topicArn must be equalTo "arn:aws:sns:us-east-1:123456789012:My-Topic"
     }

@@ -27,6 +27,6 @@ class WithTopic(wsClient: WSClient) extends Scope with FutureAwaits with Default
   private def generateTopicName(): String = Random.alphanumeric.take(10).mkString
 
   override def after: Any = {
-    // await(client.deleteQueue(testTopic))
+    // await(client.deleteTopic(testTopic))
   }
 }
