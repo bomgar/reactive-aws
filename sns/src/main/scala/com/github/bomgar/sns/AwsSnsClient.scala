@@ -28,4 +28,13 @@ class AwsSnsClient(
       .map(TopicReference.fromCreateTopicResult)
   }
 
+  def listTopic(): Future[Seq[TopicReference]] = {
+    val actionParameters = Map(
+      "Action" -> "ListTopics"
+    )
+
+    executeFormEncodedAction(actionParameters)
+      .map(TopicReference.fromListTopicResult)
+  }
+
 }

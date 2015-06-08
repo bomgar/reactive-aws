@@ -1,5 +1,6 @@
 package com.github.bomgar.sns
 
+import com.github.bomgar.sns.domain.TopicReference
 import com.github.bomgar.sns.testsupport.WithTopic
 import com.ning.http.client.AsyncHttpClientConfig.Builder
 import org.specs2.mutable.Specification
@@ -17,6 +18,15 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
     tag("integration")
     "create a new topic" in new WithTopic(wsClient) {
       testTopic.topicArn must endWith(topicName)
+    }
+
+    tag("integration")
+    "list existing topics" in new WithTopic(wsClient) {
+      testTopic // create instance of lazy val
+      //amazon needs some time to include it in the list
+      Thread.sleep(2000)
+      val topics = await(client.listTopic())
+      topics.exists(_.topicName==topicName) must beTrue
     }
 
   }
