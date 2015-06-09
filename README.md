@@ -22,4 +22,5 @@ code is still an ugly scala adaptation of the amazon samples
 * get queue attributes
 
 ## SNS
-* Create topics1
+* Create topics
+* List topics (without paging, yet!)
