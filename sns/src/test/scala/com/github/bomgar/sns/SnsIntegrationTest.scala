@@ -25,8 +25,17 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       testTopic // create instance of lazy val
       //amazon needs some time to include it in the list
       Thread.sleep(2000)
-      val topics = await(client.listTopic())
-      topics.exists(_.topicName==topicName) must beTrue
+      val topics = await(client.listTopics())
+      topics.length must be greaterThanOrEqualTo 1
+    }
+
+    tag("integration")
+    "delete existing topics" in new WithTopic(wsClient) {
+      testTopic // create instance of lazy val
+      //amazon needs some time to include it in the list
+      Thread.sleep(2000)
+
+      await(client.deleteTopic(testTopic))
     }
 
   }

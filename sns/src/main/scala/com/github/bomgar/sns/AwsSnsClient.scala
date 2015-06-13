@@ -21,6 +21,7 @@ class AwsSnsClient(
   def createTopic(topicName:String): Future[TopicReference] = {
     val actionParameters = Map(
       "Action" -> "CreateTopic",
+      "Version" -> "2010-03-31",
       "Name" -> topicName
     )
 
@@ -28,13 +29,23 @@ class AwsSnsClient(
       .map(TopicReference.fromCreateTopicResult)
   }
 
-  def listTopic(): Future[Seq[TopicReference]] = {
+  def listTopics(): Future[Seq[TopicReference]] = {
     val actionParameters = Map(
-      "Action" -> "ListTopics"
+      "Action" -> "ListTopics",
+      "Version" -> "2010-03-31"
     )
 
     executeFormEncodedAction(actionParameters)
       .map(TopicReference.fromListTopicResult)
+  }
+
+  def deleteTopic(topic: TopicReference): Future[Unit] = {
+    val actionParameters = Map(
+      "TopicArn" -> topic.topicArn,
+      "Action" -> "DeleteTopic",
+      "Version" -> "2010-03-31"
+    )
+    executeFormEncodedAction(actionParameters).map(_ => ())
   }
 
 }

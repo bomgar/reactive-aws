@@ -19,7 +19,6 @@ class TopicReferenceTest extends Specification {
       val topic = TopicReference.fromCreateTopicResult(createTopicResult)
 
       topic.topicArn must be equalTo "arn:aws:sns:us-east-1:123456789012:My-Topic"
-      topic.topicName must be equalTo "My-Topic"
     }
 
     "parse parse a list of topics" in {
@@ -44,11 +43,9 @@ class TopicReferenceTest extends Specification {
         </ListTopicsResponse>
 
       val topics = TopicReference.fromListTopicResult(listTopicsResult)
-
-      topics.exists(_.topicName=="My-Topic1") must beTrue
-      topics.exists(_.topicName=="My-Topic2") must beTrue
-      topics.exists(_.topicName=="My-Topic3") must beTrue
-      topics.length mustEqual(3)
+      topics must contain(TopicReference("arn:aws:sns:us-east-1:123456789011:My-Topic1"))
+      topics must contain(TopicReference("arn:aws:sns:us-east-1:123456789012:My-Topic2"))
+      topics must contain(TopicReference("arn:aws:sns:us-east-1:123456789013:My-Topic3"))
     }
 
   }

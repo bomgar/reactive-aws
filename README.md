@@ -24,3 +24,4 @@ code is still an ugly scala adaptation of the amazon samples
 ## SNS
 * Create topics
 * List topics (without paging, yet!)
+* Delete topic
