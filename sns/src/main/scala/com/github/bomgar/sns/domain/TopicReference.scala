@@ -7,6 +7,12 @@ case class TopicReference(topicArn: String)
 object TopicReference {
 
   def fromCreateTopicResult(createTopicResult: Elem): TopicReference = {
-    (createTopicResult \\ "TopicArn").map(topicArn => new TopicReference(topicArn.text)).head
+    val topicArn = (createTopicResult \\ "TopicArn").map(_.text).head
+    new TopicReference(topicArn)
   }
+
+  def fromListTopicResult(listTopicResult: Elem): Seq[TopicReference] = {
+     (listTopicResult \\ "TopicArn").map(_.text).map(TopicReference.apply)
+  }
+
 }
