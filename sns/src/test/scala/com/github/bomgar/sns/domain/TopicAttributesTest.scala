@@ -47,7 +47,7 @@ class TopicAttributesTest extends Specification {
            <RequestId>aa5f13b3-8337-5d5c-bd5d-5e45ca4ba926</RequestId>
          </ResponseMetadata>
        </GetTopicAttributesResponse>
-      val topicAttributes = TopicAttributes.fromGetQueueAttributesResponse(getTopicAttributesResponse)
+      val topicAttributes = TopicAttributes.fromGetTopicAttributesResponse(getTopicAttributesResponse)
       val policy = topicAttributes.policy
       val effectiveDeliveryPolicy = topicAttributes.effectiveDeliveryPolicy
       val deliveryPolicy = topicAttributes.deliveryPolicy

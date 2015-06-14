@@ -29,7 +29,7 @@ object TopicAttributes {
   val DeliveryPolicy = "DeliveryPolicy"
   val EffectiveDeliveryPolicy = "EffectiveDeliveryPolicy"
 
-  def fromGetQueueAttributesResponse(response: Elem): TopicAttributes = {
+  def fromGetTopicAttributesResponse(response: Elem): TopicAttributes = {
     val attributes = (response \\ "entry").map{attribute =>
       val key = (attribute \ "key").text
       val value = (attribute \ "value").text
