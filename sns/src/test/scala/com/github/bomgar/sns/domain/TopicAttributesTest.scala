@@ -1,6 +1,7 @@
 package com.github.bomgar.sns.domain
 
 import org.specs2.mutable.Specification
+import play.api.libs.json.JsValue
 
 class TopicAttributesTest extends Specification {
   "A TopicAttribute" should {
@@ -47,7 +48,18 @@ class TopicAttributesTest extends Specification {
          </ResponseMetadata>
        </GetTopicAttributesResponse>
       val topicAttributes = TopicAttributes.fromGetQueueAttributesResponse(getTopicAttributesResponse)
+      val policy = topicAttributes.policy
+      val effectiveDeliveryPolicy = topicAttributes.effectiveDeliveryPolicy
+      val deliveryPolicy = topicAttributes.deliveryPolicy
+
+      policy.map(_ \ "Version" toString) must beSome ("\"2008-10-17\"")
+      topicAttributes.owner must beSome(370621384784L)
+      topicAttributes.topicArn must beSome ("arn:aws:sns:eu-central-1:370621384784:test")
+      effectiveDeliveryPolicy.map(_ \ "http") must beSome
       topicAttributes.subscriptionsConfirmed must beSome(0L)
+      topicAttributes.displayName must beSome("")
+      topicAttributes.subscriptionsDeleted must beSome(0L)
+      deliveryPolicy must beNone
     }
   }
 
