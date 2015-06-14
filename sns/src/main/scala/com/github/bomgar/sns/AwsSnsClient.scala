@@ -3,7 +3,7 @@ package com.github.bomgar.sns
 import com.github.bomgar.Region
 import com.github.bomgar.auth.credentials.AwsCredentialsProvider
 import com.github.bomgar.client.BaseAwsClient
-import com.github.bomgar.sns.domain.TopicReference
+import com.github.bomgar.sns.domain.{TopicAttributes, TopicReference}
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.duration._
@@ -27,6 +27,17 @@ class AwsSnsClient(
 
     executeFormEncodedAction(actionParameters)
       .map(TopicReference.fromCreateTopicResult)
+  }
+
+  def getTopicAttributes(topicArn:String): Future[TopicAttributes] = {
+    val actionParameters = Map(
+      "Action" -> "GetTopicAttributes",
+      "Version" -> "2010-03-31",
+      "TopicArn" -> topicArn
+    )
+
+    executeFormEncodedAction(actionParameters)
+      .map(TopicAttributes.fromGetTopicAttributesResponse)
   }
 
   def listTopics(): Future[Seq[TopicReference]] = {

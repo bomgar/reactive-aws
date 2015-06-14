@@ -38,6 +38,17 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       await(client.deleteTopic(testTopic))
     }
 
+    tag("integration")
+    "get attributes for existing topic" in new WithTopic(wsClient) {
+      testTopic // create instance of lazy val
+      //amazon needs some time to include it in the list
+      Thread.sleep(2000)
+
+      val topicAttributes = await(client.getTopicAttributes(testTopic.topicArn))
+
+      topicAttributes.topicArn must beSome (testTopic.topicArn)
+    }
+
   }
 
   override def afterAll() = wsClient.close()
