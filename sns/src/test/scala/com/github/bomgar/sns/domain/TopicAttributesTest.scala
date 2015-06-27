@@ -1,7 +1,7 @@
 package com.github.bomgar.sns.domain
 
 import org.specs2.mutable.Specification
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsString, JsDefined, JsValue}
 
 class TopicAttributesTest extends Specification {
   "A TopicAttribute" should {
@@ -52,7 +52,7 @@ class TopicAttributesTest extends Specification {
       val effectiveDeliveryPolicy = topicAttributes.effectiveDeliveryPolicy
       val deliveryPolicy = topicAttributes.deliveryPolicy
 
-      policy.map(_ \ "Version" toString) must beSome ("\"2008-10-17\"")
+      policy.map(_ \ "Version").get.get.asInstanceOf[JsString].value must be equalTo "2008-10-17"
       topicAttributes.owner must beSome(370621384784L)
       topicAttributes.topicArn must beSome ("arn:aws:sns:eu-central-1:370621384784:test")
       effectiveDeliveryPolicy.map(_ \ "http") must beSome
