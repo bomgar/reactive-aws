@@ -3,8 +3,8 @@ import sbt._
 
 object Build extends Build {
 
-  val specs2Version = "3.6"
-  val playVersion = "2.3.9"
+  val specs2Version = "3.6.1"
+  val playVersion = "2.4.1"
 
   val testDependencies = Seq(
     "org.specs2" %% "specs2-core" % specs2Version,
@@ -21,7 +21,7 @@ object Build extends Build {
     version := "1.0",
     organization := "com.github.bomgar",
     scalaVersion := "2.11.6",
-    scalacOptions := Seq("-target:jvm-1.8"),
+    scalacOptions := Seq("-target:jvm-1.8", "-deprecation", "-feature"),
     testOptions in Test := Seq(Tests.Argument("exclude", "integration")),
     resolvers ++= Seq(
       "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",

@@ -4,8 +4,9 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 import com.github.bomgar.Region
-import com.github.bomgar.auth.AWS4SignerForAuthorizationHeader
+import com.github.bomgar.auth.{AWS4Signer, AWS4SignerForAuthorizationHeader}
 import com.github.bomgar.auth.credentials.AwsCredentialsProvider
+import com.github.bomgar.utils.BinaryUtils
 import org.slf4j.LoggerFactory
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
@@ -29,11 +30,15 @@ class BaseAwsClient(
   val signer = new AWS4SignerForAuthorizationHeader(credentialsProvider, region, serviceName)
 
   protected def executeFormEncodedAction(actionParameters: Map[String, String], url: String = baseUrl, timeout: Duration = defaultTimeout): Future[Elem] = {
-    val body: String = encodeParameters(actionParameters)
+    val body: Array[Byte] = encodeParameters(actionParameters).getBytes(StandardCharsets.UTF_8)
+    val bodyHash = BinaryUtils.hash(body)
 
     val response = client
       .url(url)
-      .withHeaders("Content-Type" -> "application/x-www-form-urlencoded")
+      .withHeaders(
+        "Content-Type" -> "application/x-www-form-urlencoded",
+        AWS4Signer.BodyHashHeader -> AWS4Signer.base64Encoder.encodeToString(bodyHash)
+      )
       .sign(signer)
       .withRequestTimeout(timeout.toMillis.toInt)
       .post(body)

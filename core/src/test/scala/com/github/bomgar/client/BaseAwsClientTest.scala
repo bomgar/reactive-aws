@@ -4,7 +4,7 @@ import com.github.bomgar.Region
 import com.github.bomgar.auth.credentials.{BasicAwsCredentialsProvider, BasicAwsCredentials}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
-import play.api.libs.ws.{WSResponse, WSSignatureCalculator, WSRequestHolder, WSClient}
+import play.api.libs.ws._
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 
 import scala.concurrent.Future
@@ -63,15 +63,15 @@ class BaseAwsClientTest extends Specification with Mockito with FutureAwaits wit
 
   private def givenAMockedWsClient: (WSClient, WSResponse) = {
     val wsClient = mock[WSClient]
-    val wsRequestHolder = mock[WSRequestHolder]
+    val wsRequest = mock[WSRequest]
     val wsResponse = mock[WSResponse]
     val wsResponseFuture = Future.successful(wsResponse)
 
-    wsClient.url(anyString) returns wsRequestHolder
-    wsRequestHolder.sign(any[WSSignatureCalculator]) returns wsRequestHolder
-    wsRequestHolder.withHeaders(anyVarArg[(String, String)]) returns wsRequestHolder
-    wsRequestHolder.withRequestTimeout(anyInt) returns wsRequestHolder
-    wsRequestHolder.post(anyString)(any, any) returns wsResponseFuture
+    wsClient.url(anyString) returns wsRequest
+    wsRequest.sign(any[WSSignatureCalculator]) returns wsRequest
+    wsRequest.withHeaders(anyVarArg[(String, String)]) returns wsRequest
+    wsRequest.withRequestTimeout(anyInt) returns wsRequest
+    wsRequest.post(anyString)(any) returns wsResponseFuture
     (wsClient, wsResponse)
   }
 }

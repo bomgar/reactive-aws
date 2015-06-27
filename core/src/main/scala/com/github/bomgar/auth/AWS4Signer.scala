@@ -4,6 +4,7 @@ import java.net.{URL, URLEncoder}
 import java.nio.charset.StandardCharsets
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Base64
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
@@ -57,6 +58,14 @@ trait AWS4Signer {
     }
   }
 
+}
+
+object AWS4Signer {
+  val BodyHashHeader = "X-RAWS-BodyHash"
+
+  val base64Encoder = Base64.getEncoder
+
+  val base64Decoder = Base64.getDecoder
 
 
 }
