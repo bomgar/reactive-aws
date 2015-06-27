@@ -18,7 +18,7 @@ import scala.language.existentials
 /**
  * class copied from aws examples and converted to scala (not nice yet)
  */
-class AWS4SignerForAuthorizationHeader(
+abstract class AWS4SignerForAuthorizationHeader(
                                         val awsCredentialsProvider: AwsCredentialsProvider,
                                         val region: Region.Type,
                                         val serviceName: String,
@@ -29,7 +29,7 @@ class AWS4SignerForAuthorizationHeader(
 
   val log = LoggerFactory.getLogger(getClass)
 
-  override def calculateAndAddSignature(request: Request, requestBuilderBase: RequestBuilderBase[_]): Unit = {
+  def calculateAndAddSignature(request: Request, requestBuilderBase: RequestBuilderBase[_], body: Array[Byte]): Unit = {
     val awsCredentials = awsCredentialsProvider.awsCredentials
     val requestDate: Instant = Instant.now(clock)
     val endpointUrl = new URL(request.getUrl)
@@ -40,15 +40,7 @@ class AWS4SignerForAuthorizationHeader(
 
     val queryParameters = request.getQueryParams.asScala.map(param => param.getName -> param.getValue).toMap
 
-    val bodyHash = BinaryUtils.toHex(
-      request
-        .getHeaders
-        .get(AWS4Signer.BodyHashHeader)
-        .asScala
-        .headOption
-        .map(AWS4Signer.base64Decoder.decode)
-        .getOrElse(Array.empty)
-    )
+    val bodyHash = BinaryUtils.toHex(BinaryUtils.hash(body))
 
     val canonicalRequest = new CanonicalRequest(new URL(request.getUrl), request.getMethod, headers ++ additionalHeadersToSign, queryParameters, bodyHash)
 

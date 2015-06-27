@@ -59,13 +59,3 @@ trait AWS4Signer {
   }
 
 }
-
-object AWS4Signer {
-  val BodyHashHeader = "X-RAWS-BodyHash"
-
-  val base64Encoder = Base64.getEncoder
-
-  val base64Decoder = Base64.getDecoder
-
-
-}
