@@ -40,7 +40,7 @@ class CanonicalRequest(val endpoint: URL, val httpMethod: String, headers: Map[S
    */
   private def getCanonicalizeHeaderNames(headers: Map[String, String]): String = {
     headers
-      .map(_._1)
+      .keys
       .toList
       .map(_.toLowerCase)
       .sorted
@@ -53,7 +53,7 @@ class CanonicalRequest(val endpoint: URL, val httpMethod: String, headers: Map[S
    */
   private def getCanonicalizedHeaderString(headers: Map[String, String]): String = {
     headers
-      .map(_._1)
+      .keys
       .toList
       .sortWith(_.toLowerCase < _.toLowerCase)
       .map(key => key.toLowerCase.replaceAll("\\s+", " ") + ":" + headers(key).replaceAll("\\s+", " ") + "\n")
