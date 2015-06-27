@@ -10,6 +10,7 @@ import com.ning.http.client.{RequestBuilderBase, FluentCaseInsensitiveStringsMap
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import scala.collection.JavaConverters._
+import scala.language.existentials
 
 class AWS4SignerForAuthorizationHeaderTest extends Specification with Mockito {
 
