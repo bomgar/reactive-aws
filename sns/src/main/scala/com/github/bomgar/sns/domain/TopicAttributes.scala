@@ -8,13 +8,13 @@ import TopicAttributes._
 case class TopicAttributes (attributes: Map[String, String]) {
   def topicArn: Option [String] = attributes.get(TopicArn)
   def owner: Option [Long] = attributes.get(Owner).map(_.toLong)
-  def policy: Option [JsValue] = attributes.get(Policy).map(Json.parse(_))
+  def policy: Option [JsValue] = attributes.get(Policy).map(Json.parse)
   def displayName: Option [String] = attributes.get(DisplayName)
   def subscriptionsPending: Option [Long] = attributes.get(SubscriptionsPending).map(_.toLong)
   def subscriptionsConfirmed: Option[Long] = attributes.get(SubscriptionsConfirmed).map(_.toLong)
   def subscriptionsDeleted: Option [Long] = attributes.get(SubscriptionsDeleted).map(_.toLong)
-  def deliveryPolicy: Option [JsValue] = attributes.get(DeliveryPolicy).map(Json.parse(_))
-  def effectiveDeliveryPolicy: Option [JsValue] = attributes.get(EffectiveDeliveryPolicy).map(Json.parse(_))
+  def deliveryPolicy: Option [JsValue] = attributes.get(DeliveryPolicy).map(Json.parse)
+  def effectiveDeliveryPolicy: Option [JsValue] = attributes.get(EffectiveDeliveryPolicy).map(Json.parse)
 }
 
 object TopicAttributes {
