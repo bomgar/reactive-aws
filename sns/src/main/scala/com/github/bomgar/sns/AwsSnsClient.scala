@@ -59,4 +59,14 @@ class AwsSnsClient(
     executeFormEncodedAction(actionParameters).map(_ => ())
   }
 
+  def publish(message: String, topic: TopicReference): Future[Unit] = {
+    val actionParameters = Map(
+      "TopicArn" -> topic.topicArn,
+      "Action" -> "Publish",
+      "Message" -> message,
+      "Version" -> "2010-03-31"
+    )
+    executeFormEncodedAction(actionParameters).map(_ => ())
+  }
+
 }

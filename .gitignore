@@ -1,3 +1,4 @@
 .idea
 target
 *.iml
+set_aws_credentials.sh
