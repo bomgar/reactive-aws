@@ -3,7 +3,7 @@ package com.github.bomgar.sns
 import com.github.bomgar.Region
 import com.github.bomgar.auth.credentials.AwsCredentialsProvider
 import com.github.bomgar.client.BaseAwsClient
-import com.github.bomgar.sns.domain.{TopicAttributes, TopicReference}
+import com.github.bomgar.sns.domain.{SubscriptionReference, TopicAttributes, TopicReference}
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.duration._
@@ -15,10 +15,10 @@ class AwsSnsClient(
                     region: Region.Type,
                     client: WSClient,
                     defaultTimeout: Duration = 5.seconds
-                    )(implicit executionContext: ExecutionContext)
+                  )(implicit executionContext: ExecutionContext)
   extends BaseAwsClient(credentialsProvider, region, client, "sns", defaultTimeout) {
 
-  def createTopic(topicName:String): Future[TopicReference] = {
+  def createTopic(topicName: String): Future[TopicReference] = {
     val actionParameters = Map(
       "Action" -> "CreateTopic",
       "Version" -> "2010-03-31",
@@ -29,7 +29,7 @@ class AwsSnsClient(
       .map(TopicReference.fromCreateTopicResult)
   }
 
-  def getTopicAttributes(topicArn:String): Future[TopicAttributes] = {
+  def getTopicAttributes(topicArn: String): Future[TopicAttributes] = {
     val actionParameters = Map(
       "Action" -> "GetTopicAttributes",
       "Version" -> "2010-03-31",
@@ -67,6 +67,18 @@ class AwsSnsClient(
       "Version" -> "2010-03-31"
     )
     executeFormEncodedAction(actionParameters).map(_ => ())
+  }
+
+  def subscribe(topic: TopicReference, endpoint: String, protocol: String): Future[SubscriptionReference] = {
+    val actionParameters = Map(
+      "TopicArn" -> topic.topicArn,
+      "Action" -> "Subscribe",
+      "Endpoint" -> endpoint,
+      "Protocol" -> protocol,
+      "Version" -> "2010-03-31"
+    )
+    executeFormEncodedAction(actionParameters)
+      .map(SubscriptionReference.fromSubscribeResult)
   }
 
 }

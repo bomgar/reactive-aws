@@ -58,6 +58,18 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       await(client.publish("TestMessage",testTopic))
     }
 
+    tag("integration")
+    "subscribe to a topic" in new WithTopic(wsClient) {
+      testTopic // create instance of lazy val
+      //amazon needs some time to include it in the list
+      Thread.sleep(2000)
+
+      val subscriptionReference = await(client.subscribe(testTopic, "mathias.muenscher@kreuzwerker.de", "email" ))
+
+      subscriptionReference.confirmed must beFalse
+      subscriptionReference.subscriptionArn must beNone
+    }
+
   }
 
   override def afterAll() = wsClient.close()
