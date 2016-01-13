@@ -29,11 +29,11 @@ class AwsSnsClient(
       .map(TopicReference.fromCreateTopicResult)
   }
 
-  def getTopicAttributes(topicArn: String): Future[TopicAttributes] = {
+  def getTopicAttributes(topic: TopicReference): Future[TopicAttributes] = {
     val actionParameters = Map(
       "Action" -> "GetTopicAttributes",
       "Version" -> "2010-03-31",
-      "TopicArn" -> topicArn
+      "TopicArn" -> topic.topicArn
     )
 
     executeFormEncodedAction(actionParameters)

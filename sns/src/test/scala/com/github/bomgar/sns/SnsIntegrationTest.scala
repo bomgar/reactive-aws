@@ -49,7 +49,7 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       //amazon needs some time to include it in the list
       Thread.sleep(2000)
 
-      val topicAttributes = await(client.getTopicAttributes(testTopic.topicArn))
+      val topicAttributes = await(client.getTopicAttributes(testTopic))
 
       topicAttributes.topicArn must beSome (testTopic.topicArn)
     }
@@ -79,8 +79,8 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       subscriptionReference.confirmed must beTrue
       subscriptionReference.subscriptionArn must not beNone
 
-      Thread.sleep(25000) // Subscription assigned correctly not before 25sec (13 Jan 2016) - though immediately in mgmt console
-      val topicAttributes = await(client.getTopicAttributes(testTopic.topicArn))
+      Thread.sleep(60000) // Subscription assigned relliable not before 60sec (13 Jan 2016) - though immediately in mgmt console
+      val topicAttributes = await(client.getTopicAttributes(testTopic))
 
       topicAttributes.subscriptionsConfirmed must beSome (1)
     }
