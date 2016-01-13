@@ -31,6 +31,7 @@ object Build extends Build {
     ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
   )
 
+
   lazy val core = (project in file("core"))
     .settings(commonSettings)
     .settings(name := "reactive-aws-core")
@@ -42,6 +43,7 @@ object Build extends Build {
 
   lazy val sns = project.in(file("sns"))
     .dependsOn(core)
+    .dependsOn(sqs % "test")
     .settings(commonSettings)
     .settings(name := "reactive-aws-sns")
 

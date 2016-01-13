@@ -96,7 +96,7 @@ class AwsSqsClient(
       .map(Message.fromReceiveMessageResult)
   }
 
-  private[sqs] def getQueueAttributes(queue: QueueReference, attributes: Seq[String]): Future[QueueAttributes] = {
+  def getQueueAttributes(queue: QueueReference, attributes: Seq[String]): Future[QueueAttributes] = {
     val actionParameters = Map(
       "Action" -> "GetQueueAttributes",
       "Version" -> "2012-11-05"

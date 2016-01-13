@@ -1,12 +1,17 @@
 package com.github.bomgar.sns
 
-import com.github.bomgar.sns.domain.TopicReference
+import com.github.bomgar.auth.credentials.BasicAwsCredentialsProvider
 import com.github.bomgar.sns.testsupport.WithTopic
+import com.github.bomgar.sqs.AwsSqsClient
 import com.ning.http.client.AsyncHttpClientConfig.Builder
 import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
 import play.api.libs.ws.ning.NingWSClient
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import scala.concurrent.ExecutionContext.Implicits.global
+
+
+import scala.util.Random
 
 class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwaitTimeout with AfterAll {
 
@@ -61,13 +66,23 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
     tag("integration")
     "subscribe to a topic" in new WithTopic(wsClient) {
       testTopic // create instance of lazy val
-      //amazon needs some time to include it in the list
+
+      val sqsClient = new AwsSqsClient(new BasicAwsCredentialsProvider(awsCredentials),region, wsClient)
+      lazy val queueName: String = Random.alphanumeric.take(10).mkString
+      lazy val testQueue = await(sqsClient.createQueue(queueName))
+
       Thread.sleep(2000)
+      val testQueueAttributes = await(sqsClient.getQueueAttributes(testQueue,Seq("QueueArn")))
+      val testQueueArn: String = testQueueAttributes.queueArn.getOrElse(throw new RuntimeException("Failed to get arn from testqueue"))
+      val subscriptionReference = await(client.subscribe(testTopic, testQueueArn, "sqs" ))
 
-      val subscriptionReference = await(client.subscribe(testTopic, "mathias.muenscher@kreuzwerker.de", "email" ))
+      subscriptionReference.confirmed must beTrue
+      subscriptionReference.subscriptionArn must not beNone
 
-      subscriptionReference.confirmed must beFalse
-      subscriptionReference.subscriptionArn must beNone
+      Thread.sleep(25000) // Subscription assigned correctly not before 25sec (13 Jan 2016) - though immediately in mgmt console
+      val topicAttributes = await(client.getTopicAttributes(testTopic.topicArn))
+
+      topicAttributes.subscriptionsConfirmed must beSome (1)
     }
 
   }
