@@ -8,16 +8,25 @@ object SubscriptionReference {
 
   def fromSubscribeResult(subscribeResult: Elem): SubscriptionReference = {
 
-    val subscriptionArnReturnValue = (subscribeResult \\ "SubscriptionArn").map(_.text).head
-    val confirmed = subscriptionArnReturnValue.startsWith("arn:aws:sns")
+    val subscriptionArn = (subscribeResult \\ "SubscriptionArn").map(_.text).head
 
-    val subscriptionArn = if (confirmed) {
-      Option(subscriptionArnReturnValue)
+    fromSubscriptionArn(subscriptionArn)
+  }
+
+  def fromListSubscriptionByTopicResult(listSubscriptionsResult: Elem): Seq[SubscriptionReference] = {
+    (listSubscriptionsResult \\ "SubscriptionArn").map(arnNode => fromSubscriptionArn(arnNode.text))
+  }
+
+  def fromSubscriptionArn(subscriptionArn: String): SubscriptionReference = {
+    val confirmed = subscriptionArn.startsWith("arn:aws:sns")
+
+    val arn = if (confirmed) {
+      Option(subscriptionArn)
     } else {
       None
     }
 
-    new SubscriptionReference(subscriptionArn, confirmed)
+    new SubscriptionReference(arn, confirmed)
   }
 
 }
