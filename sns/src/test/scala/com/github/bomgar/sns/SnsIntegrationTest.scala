@@ -51,6 +51,19 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
     }
 
     tag("integration")
+    "set attribute for existing topic" in new WithTopic(wsClient) {
+      testTopic // create instance of lazy val
+      //amazon needs some time to include it in the list
+      Thread.sleep(2000)
+      val displayName: String = "dufte"
+
+      await(client.setTopicAttribute(testTopic, "DisplayName", displayName))
+
+      val topicAttributes = await(client.getTopicAttributes(testTopic))
+      topicAttributes.displayName must beSome (displayName)
+    }
+
+    tag("integration")
     "publish a message" in new WithTopic(wsClient) {
       testTopic // create instance of lazy val
       //amazon needs some time to include it in the list
@@ -69,7 +82,7 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       subscriptionReference.confirmed must beTrue
       subscriptionReference.subscriptionArn must not beNone
 
-      Thread.sleep(10000) // 13 Jan 2016: Subscription assigned reliable not before 60sec
+      Thread.sleep(40000) // 13 Jan 2016: Subscription assigned reliable not before 60sec
       val topicAttributes = await(client.getTopicAttributes(testTopic))
 
       topicAttributes.subscriptionsConfirmed must beSome (1)
