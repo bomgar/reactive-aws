@@ -25,3 +25,6 @@ code is still an ugly scala adaptation of the amazon samples
 * Create topics
 * List topics (without paging, yet!)
 * Delete topic
+* Publish
+* Subscribe topic
+* List Subscriptions by Topic
