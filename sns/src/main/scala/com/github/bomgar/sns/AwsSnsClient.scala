@@ -81,4 +81,15 @@ class AwsSnsClient(
       .map(SubscriptionReference.fromSubscribeResult)
   }
 
+  def listSubscriptionsByTopics(topic: TopicReference): Future[Seq[SubscriptionReference]] = {
+    val actionParameters = Map(
+      "Action" -> "ListSubscriptionsByTopic",
+      "TopicArn" -> topic.topicArn,
+      "Version" -> "2010-03-31"
+    )
+
+    executeFormEncodedAction(actionParameters)
+      .map(SubscriptionReference.fromListSubscriptionByTopicResult)
+  }
+
 }

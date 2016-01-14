@@ -7,7 +7,6 @@ import org.specs2.mutable.After
 import org.specs2.specification.Scope
 import play.api.libs.ws.WSClient
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
@@ -21,10 +20,10 @@ class WithTopic(wsClient: WSClient) extends Scope with FutureAwaits with Default
 
   lazy val client = new AwsSnsClient(new BasicAwsCredentialsProvider(awsCredentials), region, wsClient: WSClient)
 
-  lazy val topicName: String = generateTopicName()
+  lazy val topicName : String = generateRandomName()
   lazy val testTopic = await(client.createTopic(topicName))
 
-  private def generateTopicName(): String = Random.alphanumeric.take(10).mkString
+  def generateRandomName(): String = Random.alphanumeric.take(10).mkString
 
   override def after: Any = {
     // await(client.deleteTopic(testTopic))
