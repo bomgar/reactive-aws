@@ -29,15 +29,26 @@ class AwsSnsClient(
       .map(TopicReference.fromCreateTopicResult)
   }
 
-  def getTopicAttributes(topicArn: String): Future[TopicAttributes] = {
+  def getTopicAttributes(topic: TopicReference): Future[TopicAttributes] = {
     val actionParameters = Map(
       "Action" -> "GetTopicAttributes",
       "Version" -> "2010-03-31",
-      "TopicArn" -> topicArn
+      "TopicArn" -> topic.topicArn
     )
 
     executeFormEncodedAction(actionParameters)
       .map(TopicAttributes.fromGetTopicAttributesResponse)
+  }
+
+  def setTopicAttribute(topic: TopicReference, attributeName:String, attributeValue: String): Future[Unit] = {
+    val actionParameters = Map(
+      "TopicArn" -> topic.topicArn,
+      "Action" -> "SetTopicAttributes",
+      "AttributeName" -> attributeName,
+      "AttributeValue" -> attributeValue,
+      "Version" -> "2010-03-31"
+    )
+    executeFormEncodedAction(actionParameters).map(_ => ())
   }
 
   def listTopics(): Future[Seq[TopicReference]] = {
@@ -79,6 +90,17 @@ class AwsSnsClient(
     )
     executeFormEncodedAction(actionParameters)
       .map(SubscriptionReference.fromSubscribeResult)
+  }
+
+  def listSubscriptionsByTopics(topic: TopicReference): Future[Seq[SubscriptionReference]] = {
+    val actionParameters = Map(
+      "Action" -> "ListSubscriptionsByTopic",
+      "TopicArn" -> topic.topicArn,
+      "Version" -> "2010-03-31"
+    )
+
+    executeFormEncodedAction(actionParameters)
+      .map(SubscriptionReference.fromListSubscriptionByTopicResult)
   }
 
 }

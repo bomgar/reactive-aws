@@ -13,15 +13,19 @@ code is still an ugly scala adaptation of the amazon samples
 ## SQS
 * List queues
 * Queue url by name
-* Create Queue
-* Delete Queue
-* send messages
-* receive messages
-* acknowledge messages
-* purge queues
-* get queue attributes
+* Create queue
+* Delete queue
+* Send messages
+* Receive messages
+* Acknowledge messages
+* Purge queues
+* gGet queue attributes
 
 ## SNS
 * Create topics
 * List topics (without paging, yet!)
 * Delete topic
+* Publish
+* Subscribe topic
+* List subscriptions by topic
+* Get/Set topic attributes
