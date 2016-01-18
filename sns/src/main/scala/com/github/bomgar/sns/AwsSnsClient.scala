@@ -122,4 +122,15 @@ class AwsSnsClient(
 
     executeFormEncodedAction(actionParameters.toMap).map(_ => ())
   }
+
+  def removePermission (permission: TopicPermission): Future [Unit] = {
+    val actionParameters = Map(
+      "Action" -> "RemovePermission",
+      "TopicArn" -> permission.topic.topicArn,
+      "Label" -> permission.label,
+      "Version" -> "2010-03-31"
+    )
+
+    executeFormEncodedAction(actionParameters).map(_ => ())
+  }
 }

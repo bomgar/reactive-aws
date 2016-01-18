@@ -118,6 +118,21 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       await(client.addPermission(permission))
     }
 
+    tag("integration")
+    "remove permission for topic" in new WithTopic(wsClient) {
+      testTopic // create instance of lazy val
+      Thread.sleep(2000)
+      val awsId = Option(System.getenv("AWS_ID")).getOrElse(throw new IllegalArgumentException("Missing variable AWS_ID"))
+      val permission = new TopicPermission(
+        testTopic,
+        "TestPermission",
+        List("Publish"),
+        List(awsId))
+      await(client.addPermission(permission))
+
+      await(client.removePermission(permission))
+    }
+
   }
 
   override def afterAll() = wsClient.close()
