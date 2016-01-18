@@ -3,7 +3,7 @@ package com.github.bomgar.sns
 import com.github.bomgar.Region
 import com.github.bomgar.auth.credentials.AwsCredentialsProvider
 import com.github.bomgar.client.BaseAwsClient
-import com.github.bomgar.sns.domain.{SubscriptionReference, TopicAttributes, TopicReference}
+import com.github.bomgar.sns.domain.{TopicPermission, SubscriptionReference, TopicAttributes, TopicReference}
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.duration._
@@ -48,6 +48,7 @@ class AwsSnsClient(
       "AttributeValue" -> attributeValue,
       "Version" -> "2010-03-31"
     )
+
     executeFormEncodedAction(actionParameters).map(_ => ())
   }
 
@@ -103,4 +104,22 @@ class AwsSnsClient(
       .map(SubscriptionReference.fromListSubscriptionByTopicResult)
   }
 
+  def addPermission (permission: TopicPermission): Future [Unit] = {
+    var actionParameters = scala.collection.mutable.Map(
+      "Action" -> "AddPermission",
+      "TopicArn" -> permission.topic.topicArn,
+      "Label" -> permission.label,
+      "Version" -> "2010-03-31"
+    )
+
+    actionParameters ++= permission.actions.zipWithIndex.map{
+      case(action, index) => "ActionName.member." + (index+1) -> action
+    }
+
+    actionParameters ++= permission.principalAwsIds.zipWithIndex.map{
+      case(action, index) => "AWSAccountId.member." + (index+1) -> action
+    }
+
+    executeFormEncodedAction(actionParameters.toMap).map(_ => ())
+  }
 }

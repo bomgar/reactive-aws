@@ -1,6 +1,6 @@
 package com.github.bomgar.sns
 
-import com.github.bomgar.sns.domain.SubscriptionReference
+import com.github.bomgar.sns.domain.{TopicPermission, SubscriptionReference}
 import com.github.bomgar.sns.testsupport.{WithTopicAndTestQueue, WithTopic}
 import com.ning.http.client.AsyncHttpClientConfig.Builder
 import org.specs2.mutable.Specification
@@ -102,6 +102,20 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
 
       topicSubscription must contain(SubscriptionReference.fromSubscriptionArn(testQueueArn))
       topicSubscription must contain(SubscriptionReference.fromSubscriptionArn("confirmation pending"))
+    }
+
+    tag("integration")
+    "set permission for topic" in new WithTopic(wsClient) {
+      testTopic // create instance of lazy val
+      Thread.sleep(2000)
+      val awsId = Option(System.getenv("AWS_ID")).getOrElse(throw new IllegalArgumentException("Missing variable AWS_ID"))
+      val permission = new TopicPermission(
+        testTopic,
+        "TestPermission",
+        List("Publish"),
+        List(awsId))
+
+      await(client.addPermission(permission))
     }
 
   }
