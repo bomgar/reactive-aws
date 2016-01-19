@@ -38,6 +38,6 @@ code is still an ugly scala adaptation of the amazon samples
 * Delete topic
 * Publish
 * Subscribe topic
-* List subscriptions by topic
+* List subscriptions / .. by topic
 * Get/Set topic attributes
-* Add permission
+* Add/Delete permission
