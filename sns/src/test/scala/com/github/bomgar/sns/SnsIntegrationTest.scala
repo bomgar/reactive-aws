@@ -1,6 +1,6 @@
 package com.github.bomgar.sns
 
-import com.github.bomgar.sns.domain.{TopicPermission, SubscriptionReference}
+import com.github.bomgar.sns.domain.{TopicPermission, Subscription}
 import com.github.bomgar.sns.testsupport.{WithTopicAndTestQueue, WithTopic}
 import com.ning.http.client.AsyncHttpClientConfig.Builder
 import org.specs2.mutable.Specification
@@ -73,35 +73,39 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
     }
 
     tag("integration")
-    "subscribe to a topic" in new WithTopicAndTestQueue(wsClient) {
-      testTopic // create instance of lazy val
-      Thread.sleep(2000)
-      testQueueArn
-      val subscriptionReference = await(client.subscribe(testTopic, testQueueArn, "sqs" ))
-
-      subscriptionReference.confirmed must beTrue
-      subscriptionReference.subscriptionArn must not beNone
-
-      Thread.sleep(40000) // 13 Jan 2016: Subscription assigned reliable not before 60sec
-      val topicAttributes = await(client.getTopicAttributes(testTopic))
-
-      topicAttributes.subscriptionsConfirmed must beSome (1)
-    }
-
-    tag("integration")
     "list subscriptions by topic" in new WithTopicAndTestQueue(wsClient) {
       testTopic // create instance of lazy val
       Thread.sleep(2000)
       testQueueArn
       await(client.subscribe(testTopic, testQueueArn, "sqs" ))
-      await(client.subscribe(testTopic, "success@simulator.amazonses.com", "email"))
+      private val testEmail: String = "success@simulator.amazonses.com"
+      await(client.subscribe(testTopic, testEmail, "email"))
+      Thread.sleep(60000)
 
       val topicSubscription = await(client.listSubscriptionsByTopics(testTopic))
 
       topicSubscription.length must beEqualTo(2)
+      val endpoints = topicSubscription.map(_.endpoint)
+      endpoints must contain(Some(testQueueArn))
+      endpoints must contain(Some(testEmail))
+    }
 
-      topicSubscription must contain(SubscriptionReference.fromSubscriptionArn(testQueueArn))
-      topicSubscription must contain(SubscriptionReference.fromSubscriptionArn("confirmation pending"))
+    tag("integration")
+    "list subscriptions" in new WithTopicAndTestQueue(wsClient) {
+      testTopic // create instance of lazy val
+      Thread.sleep(2000)
+      testQueueArn
+      await(client.subscribe(testTopic, testQueueArn, "sqs" ))
+      private val testEmail: String = "success@simulator.amazonses.com"
+      await(client.subscribe(testTopic, testEmail, "email"))
+      Thread.sleep(60000)
+
+      val subscriptions = await(client.listSubscriptions())
+
+      subscriptions.length must beGreaterThanOrEqualTo(2)
+      val endpoints = subscriptions.map(_.endpoint)
+      endpoints must contain(Some(testQueueArn))
+      endpoints must contain(Some(testEmail))
     }
 
     tag("integration")
@@ -131,6 +135,22 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       await(client.addPermission(permission))
 
       await(client.removePermission(permission))
+    }
+
+    tag("integration")
+    "subscribe to a topic" in new WithTopicAndTestQueue(wsClient) {
+      testTopic // create instance of lazy val
+      Thread.sleep(2000)
+      testQueueArn
+      val subscriptionReference = await(client.subscribe(testTopic, testQueueArn, "sqs" ))
+
+      subscriptionReference.confirmed must beTrue
+      subscriptionReference.subscriptionArn must not beNone
+
+      Thread.sleep(60000) // 13 Jan 2016: Subscription assigned reliable not before 60sec
+      val topicAttributes = await(client.getTopicAttributes(testTopic))
+
+      topicAttributes.subscriptionsConfirmed must beSome (1)
     }
 
   }
