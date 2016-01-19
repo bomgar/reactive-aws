@@ -1,6 +1,6 @@
 package com.github.bomgar.sns
 
-import com.github.bomgar.sns.domain.{TopicPermission, Subscription}
+import com.github.bomgar.sns.domain.{SubscriptionListResult, TopicPermission, Subscription}
 import com.github.bomgar.sns.testsupport.{WithTopicAndTestQueue, WithTopic}
 import com.ning.http.client.AsyncHttpClientConfig.Builder
 import org.specs2.mutable.Specification
@@ -82,10 +82,10 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       await(client.subscribe(testTopic, testEmail, "email"))
       Thread.sleep(60000)
 
-      val topicSubscription = await(client.listSubscriptionsByTopics(testTopic))
+      val subscriptionListResult = await(client.listSubscriptionsByTopics(testTopic))
 
-      topicSubscription.length must beEqualTo(2)
-      val endpoints = topicSubscription.map(_.endpoint)
+      subscriptionListResult.subscriptions.length must beEqualTo(2)
+      val endpoints = subscriptionListResult.subscriptions.map(_.endpoint)
       endpoints must contain(Some(testQueueArn))
       endpoints must contain(Some(testEmail))
     }
@@ -99,11 +99,19 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       private val testEmail: String = "success@simulator.amazonses.com"
       await(client.subscribe(testTopic, testEmail, "email"))
       Thread.sleep(60000)
+      var subscriptionListResult : SubscriptionListResult = null
+      var allPagedSubscriptions = Seq.empty[Subscription]
+      var nextPageToken : Option[String] = None
 
-      val subscriptions = await(client.listSubscriptions())
+      do {
+        subscriptionListResult = await(client.listSubscriptions(nextPageToken))
+        nextPageToken = subscriptionListResult.nextPageToken
+        allPagedSubscriptions ++= subscriptionListResult.subscriptions
+      } while (nextPageToken.isDefined)
 
-      subscriptions.length must beGreaterThanOrEqualTo(2)
-      val endpoints = subscriptions.map(_.endpoint)
+
+      allPagedSubscriptions.length must beGreaterThanOrEqualTo(100)
+      val endpoints = allPagedSubscriptions.map(_.endpoint)
       endpoints must contain(Some(testQueueArn))
       endpoints must contain(Some(testEmail))
     }

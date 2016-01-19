@@ -2,13 +2,14 @@ package com.github.bomgar.sns.domain
 
 import scala.xml.{Node, Elem}
 
-case class Subscription(
+case class Subscription (
                          subscriptionArn: Option[String],
                          topicArn: Option[String],
                          endpoint: Option[String],
                          protocol: Option[String],
                          owner: Option[String],
-                         confirmed: Boolean)
+                         confirmed: Boolean
+                        )
 
 object Subscription {
 

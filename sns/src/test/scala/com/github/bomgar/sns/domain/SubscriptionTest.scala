@@ -6,7 +6,7 @@ class SubscriptionTest extends Specification {
   "A Subsription" should {
 
     "parse create topic result with a confirmed subscription" in {
-      val createSubscriptionResult =
+      val createSubscriptionXml =
         <SubscribeResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
           <SubscribeResult>
             <SubscriptionArn>arn:aws:sns:us-west-2:123456789012:MyTopic:6b0e71bd-7e97-4d97-80ce-4a0994e55286</SubscriptionArn>
@@ -16,14 +16,14 @@ class SubscriptionTest extends Specification {
           </ResponseMetadata>
         </SubscribeResponse>
 
-      val subscriptionReference = Subscription.fromSubscribeResult(createSubscriptionResult)
+      val subscription = Subscription.fromSubscribeResult(createSubscriptionXml)
 
-      subscriptionReference.subscriptionArn must beSome ("arn:aws:sns:us-west-2:123456789012:MyTopic:6b0e71bd-7e97-4d97-80ce-4a0994e55286")
-      subscriptionReference.confirmed must beTrue
+      subscription.subscriptionArn must beSome ("arn:aws:sns:us-west-2:123456789012:MyTopic:6b0e71bd-7e97-4d97-80ce-4a0994e55286")
+      subscription.confirmed must beTrue
     }
 
     "parse create topic result with an unconfirmed subscription" in {
-      val createSubscriptionResult =
+      val createSubscriptionXml =
         <SubscribeResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
           <SubscribeResult>
             <SubscriptionArn>pending confirmation</SubscriptionArn>
@@ -33,10 +33,10 @@ class SubscriptionTest extends Specification {
           </ResponseMetadata>
         </SubscribeResponse>
 
-      val subscriptionReference = Subscription.fromSubscribeResult(createSubscriptionResult)
+      val subscription = Subscription.fromSubscribeResult(createSubscriptionXml)
 
-      subscriptionReference.subscriptionArn must beNone
-      subscriptionReference.confirmed must beFalse
+      subscription.subscriptionArn must beNone
+      subscription.confirmed must beFalse
     }
 
     "parse a list of subscriptions by topic" in {
@@ -59,19 +59,20 @@ class SubscriptionTest extends Specification {
                 <TopicArn>arn:aws:sns:eu-central-1:dufte:truppe</TopicArn>
               </member>
             </Subscriptions>
+            <NextToken>AAFOcH5cJ233ZKyqgLfr+RuVkwDUan2MwyoF0yAP6J64zg==</NextToken>
           </ListSubscriptionsByTopicResult>
           <ResponseMetadata>
             <RequestId>c4407779-24a4-56fa-982c-3d927f93a775</RequestId>
           </ResponseMetadata>
         </ListSubscriptionsByTopicResponse>
 
-      val subscriptionReferences = Subscription.fromListSubscriptionsResult(listSubscriptionsByTopic)
+      val subscriptions = Subscription.fromListSubscriptionsResult(listSubscriptionsByTopic)
 
-      subscriptionReferences.length must beEqualTo(2)
-      subscriptionReferences(0).subscriptionArn must beSome("arn:aws:sns:eu-central-1:dufte:truppe:2af7019d-1ac0-47e6-ffff-2382c49fcbdd")
-      subscriptionReferences(0).confirmed must beTrue
-      subscriptionReferences(1).subscriptionArn must beNone
-      subscriptionReferences(1).confirmed must beFalse
+      subscriptions.length must beEqualTo(2)
+      subscriptions(0).subscriptionArn must beSome("arn:aws:sns:eu-central-1:dufte:truppe:2af7019d-1ac0-47e6-ffff-2382c49fcbdd")
+      subscriptions(0).confirmed must beTrue
+      subscriptions(1).subscriptionArn must beNone
+      subscriptions(1).confirmed must beFalse
     }
 
     "parse a list of all subscriptions" in {
@@ -94,19 +95,20 @@ class SubscriptionTest extends Specification {
                 <TopicArn>arn:aws:sns:eu-central-1:dufte:truppe</TopicArn>
               </member>
             </Subscriptions>
+            <NextToken>AAFOcH5cJ233ZKyqgLfr+RuVkwDUan2MwyoF0yAP6J64zg==</NextToken>
           </ListSubscriptionsResult>
           <ResponseMetadata>
             <RequestId>c4407779-24a4-56fa-982c-3d927f93a775</RequestId>
           </ResponseMetadata>
         </ListSubscriptionsResponse>
 
-      val subscriptionReferences = Subscription.fromListSubscriptionsResult(listSubscriptions)
+      val subscriptions = Subscription.fromListSubscriptionsResult(listSubscriptions)
 
-      subscriptionReferences.length must beEqualTo(2)
-      subscriptionReferences(0).subscriptionArn must beSome("arn:aws:sns:eu-central-1:dufte:truppe:2af7019d-1ac0-47e6-ffff-2382c49fcbdd")
-      subscriptionReferences(0).confirmed must beTrue
-      subscriptionReferences(1).subscriptionArn must beNone
-      subscriptionReferences(1).confirmed must beFalse
+      subscriptions.length must beEqualTo(2)
+      subscriptions(0).subscriptionArn must beSome("arn:aws:sns:eu-central-1:dufte:truppe:2af7019d-1ac0-47e6-ffff-2382c49fcbdd")
+      subscriptions(0).confirmed must beTrue
+      subscriptions(1).subscriptionArn must beNone
+      subscriptions(1).confirmed must beFalse
     }
   }
 }

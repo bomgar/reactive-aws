@@ -3,7 +3,7 @@ package com.github.bomgar.sns
 import com.github.bomgar.Region
 import com.github.bomgar.auth.credentials.AwsCredentialsProvider
 import com.github.bomgar.client.BaseAwsClient
-import com.github.bomgar.sns.domain.{TopicPermission, Subscription, TopicAttributes, TopicReference}
+import com.github.bomgar.sns.domain._
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.duration._
@@ -93,7 +93,7 @@ class AwsSnsClient(
       .map(Subscription.fromSubscribeResult)
   }
 
-  def listSubscriptionsByTopics(topic: TopicReference): Future[Seq[Subscription]] = {
+  def listSubscriptionsByTopics(topic: TopicReference): Future[SubscriptionListResult] = {
     val actionParameters = Map(
       "Action" -> "ListSubscriptionsByTopic",
       "TopicArn" -> topic.topicArn,
@@ -101,7 +101,7 @@ class AwsSnsClient(
     )
 
     executeFormEncodedAction(actionParameters)
-      .map(Subscription.fromListSubscriptionsResult)
+      .map(SubscriptionListResult.fromSubscriptionListResult)
   }
 
   def addPermission (permission: TopicPermission): Future [Unit] = {
@@ -134,13 +134,15 @@ class AwsSnsClient(
     executeFormEncodedAction(actionParameters).map(_ => ())
   }
 
-  def listSubscriptions (): Future[Seq[Subscription]] = {
-    val actionParameters = Map(
+  def listSubscriptions (nextPageToken: Option[String] = None): Future[SubscriptionListResult] = {
+    val actionParameters = scala.collection.mutable.Map(
       "Action" -> "ListSubscriptions",
       "Version" -> "2010-03-31"
     )
 
-    executeFormEncodedAction(actionParameters)
-      .map(Subscription.fromListSubscriptionsResult)
+    if (nextPageToken.isDefined) actionParameters += "NextToken" -> nextPageToken.get
+
+    executeFormEncodedAction(actionParameters.toMap)
+      .map(SubscriptionListResult.fromSubscriptionListResult)
   }
 }
