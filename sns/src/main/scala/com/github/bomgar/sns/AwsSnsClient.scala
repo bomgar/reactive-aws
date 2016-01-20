@@ -93,14 +93,16 @@ class AwsSnsClient(
       .map(Subscription.fromSubscribeResult)
   }
 
-  def listSubscriptionsByTopics(topic: TopicReference): Future[SubscriptionListResult] = {
-    val actionParameters = Map(
+  def listSubscriptionsByTopics(topic: TopicReference, nextPageToken: Option[String] = None): Future[SubscriptionListResult] = {
+    val actionParameters = scala.collection.mutable.Map(
       "Action" -> "ListSubscriptionsByTopic",
       "TopicArn" -> topic.topicArn,
       "Version" -> "2010-03-31"
     )
 
-    executeFormEncodedAction(actionParameters)
+    if (nextPageToken.isDefined) actionParameters += "NextToken" -> nextPageToken.get
+
+    executeFormEncodedAction(actionParameters.toMap)
       .map(SubscriptionListResult.fromSubscriptionListResult)
   }
 

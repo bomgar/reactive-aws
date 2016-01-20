@@ -82,10 +82,18 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       await(client.subscribe(testTopic, testEmail, "email"))
       Thread.sleep(60000)
 
-      val subscriptionListResult = await(client.listSubscriptionsByTopics(testTopic))
+      var subscriptionListResult : SubscriptionListResult = null
+      var allPagedSubscriptions = Seq.empty[Subscription]
+      var nextPageToken : Option[String] = None
+      do {
+        subscriptionListResult = await(client.listSubscriptionsByTopics(testTopic, nextPageToken))
+        nextPageToken = subscriptionListResult.nextPageToken
+        allPagedSubscriptions ++= subscriptionListResult.subscriptions
+      } while (nextPageToken.isDefined)
 
-      subscriptionListResult.subscriptions.length must beEqualTo(2)
-      val endpoints = subscriptionListResult.subscriptions.map(_.endpoint)
+
+      allPagedSubscriptions.length must equalTo(2)
+      val endpoints = allPagedSubscriptions.map(_.endpoint)
       endpoints must contain(Some(testQueueArn))
       endpoints must contain(Some(testEmail))
     }
@@ -99,10 +107,10 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       private val testEmail: String = "success@simulator.amazonses.com"
       await(client.subscribe(testTopic, testEmail, "email"))
       Thread.sleep(60000)
+
       var subscriptionListResult : SubscriptionListResult = null
       var allPagedSubscriptions = Seq.empty[Subscription]
       var nextPageToken : Option[String] = None
-
       do {
         subscriptionListResult = await(client.listSubscriptions(nextPageToken))
         nextPageToken = subscriptionListResult.nextPageToken
