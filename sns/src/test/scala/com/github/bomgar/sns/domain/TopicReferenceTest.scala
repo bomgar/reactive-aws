@@ -42,7 +42,7 @@ class TopicReferenceTest extends Specification {
           </ResponseMetadata>
         </ListTopicsResponse>
 
-      val topics = TopicReference.fromListTopicResult(listTopicsResult)
+      val topics = TopicReference.fromListTopicsResult(listTopicsResult)
       topics must contain(TopicReference("arn:aws:sns:us-east-1:123456789011:My-Topic1"))
       topics must contain(TopicReference("arn:aws:sns:us-east-1:123456789012:My-Topic2"))
       topics must contain(TopicReference("arn:aws:sns:us-east-1:123456789013:My-Topic3"))

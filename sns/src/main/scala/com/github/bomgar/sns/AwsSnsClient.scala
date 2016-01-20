@@ -52,14 +52,16 @@ class AwsSnsClient(
     executeFormEncodedAction(actionParameters).map(_ => ())
   }
 
-  def listTopics(): Future[Seq[TopicReference]] = {
-    val actionParameters = Map(
+  def listTopics(nextPageToken: Option[String] = None): Future[TopicReferenceListResult] = {
+    val actionParameters = scala.collection.mutable.Map(
       "Action" -> "ListTopics",
       "Version" -> "2010-03-31"
     )
 
-    executeFormEncodedAction(actionParameters)
-      .map(TopicReference.fromListTopicResult)
+    if (nextPageToken.isDefined) actionParameters += "NextToken" -> nextPageToken.get
+
+    executeFormEncodedAction(actionParameters.toMap)
+      .map(TopicReferenceListResult.fromListTopicsResult)
   }
 
   def deleteTopic(topic: TopicReference): Future[Unit] = {

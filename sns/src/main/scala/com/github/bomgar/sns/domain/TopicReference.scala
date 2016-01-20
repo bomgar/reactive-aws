@@ -11,7 +11,7 @@ object TopicReference {
     new TopicReference(topicArn)
   }
 
-  def fromListTopicResult(listTopicResult: Elem): Seq[TopicReference] = {
+  def fromListTopicsResult(listTopicResult: Elem): Seq[TopicReference] = {
      (listTopicResult \\ "TopicArn").map(_.text).map(TopicReference.apply)
   }
 

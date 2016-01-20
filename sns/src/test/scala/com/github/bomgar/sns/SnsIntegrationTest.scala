@@ -1,6 +1,6 @@
 package com.github.bomgar.sns
 
-import com.github.bomgar.sns.domain.{SubscriptionListResult, TopicPermission, Subscription}
+import com.github.bomgar.sns.domain._
 import com.github.bomgar.sns.testsupport.{WithTopicAndTestQueue, WithTopic}
 import com.ning.http.client.AsyncHttpClientConfig.Builder
 import org.specs2.mutable.Specification
@@ -26,8 +26,17 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       testTopic // create instance of lazy val
       //amazon needs some time to include it in the list
       Thread.sleep(2000)
-      val topics = await(client.listTopics())
-      topics.length must be greaterThanOrEqualTo 1
+
+      var topicReferenceListResult : TopicReferenceListResult = null
+      var allPagedTopics = Seq.empty[TopicReference]
+      var nextPageToken : Option[String] = None
+      do {
+        topicReferenceListResult = await(client.listTopics(nextPageToken))
+        nextPageToken = topicReferenceListResult.nextPageToken
+        allPagedTopics ++= topicReferenceListResult.topicReferences
+      } while (nextPageToken.isDefined)
+
+      allPagedTopics must contain(testTopic)
     }
 
     tag("integration")
