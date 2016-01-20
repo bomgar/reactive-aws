@@ -110,7 +110,7 @@ class SnsIntegrationTest extends Specification with FutureAwaits with DefaultAwa
       } while (nextPageToken.isDefined)
 
 
-      allPagedSubscriptions.length must beGreaterThanOrEqualTo(100)
+      allPagedSubscriptions.length must beGreaterThanOrEqualTo(2)
       val endpoints = allPagedSubscriptions.map(_.endpoint)
       endpoints must contain(Some(testQueueArn))
       endpoints must contain(Some(testEmail))
