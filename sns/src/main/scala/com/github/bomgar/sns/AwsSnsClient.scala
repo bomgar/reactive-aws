@@ -8,6 +8,7 @@ import play.api.libs.ws.WSClient
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.xml.Elem
 
 
 class AwsSnsClient(
@@ -53,14 +54,12 @@ class AwsSnsClient(
   }
 
   def listTopics(nextPageToken: Option[String] = None): Future[TopicReferenceListResult] = {
-    val actionParameters = scala.collection.mutable.Map(
+    val actionParameters = Map(
       "Action" -> "ListTopics",
       "Version" -> "2010-03-31"
-    )
+    ) ++ nextPageToken.map("NextToken" -> _)
 
-    if (nextPageToken.isDefined) actionParameters += "NextToken" -> nextPageToken.get
-
-    executeFormEncodedAction(actionParameters.toMap)
+    executeFormEncodedAction(actionParameters)
       .map(TopicReferenceListResult.fromListTopicsResult)
   }
 
@@ -96,15 +95,13 @@ class AwsSnsClient(
   }
 
   def listSubscriptionsByTopics(topic: TopicReference, nextPageToken: Option[String] = None): Future[SubscriptionListResult] = {
-    val actionParameters = scala.collection.mutable.Map(
+    val actionParameters = Map(
       "Action" -> "ListSubscriptionsByTopic",
       "TopicArn" -> topic.topicArn,
       "Version" -> "2010-03-31"
-    )
+    )  ++ nextPageToken.map("NextToken" -> _)
 
-    if (nextPageToken.isDefined) actionParameters += "NextToken" -> nextPageToken.get
-
-    executeFormEncodedAction(actionParameters.toMap)
+    executeFormEncodedAction(actionParameters)
       .map(SubscriptionListResult.fromSubscriptionListResult)
   }
 
@@ -139,14 +136,12 @@ class AwsSnsClient(
   }
 
   def listSubscriptions (nextPageToken: Option[String] = None): Future[SubscriptionListResult] = {
-    val actionParameters = scala.collection.mutable.Map(
+    val actionParameters = Map(
       "Action" -> "ListSubscriptions",
       "Version" -> "2010-03-31"
-    )
+    ) ++ nextPageToken.map("NextToken" -> _)
 
-    if (nextPageToken.isDefined) actionParameters += "NextToken" -> nextPageToken.get
-
-    executeFormEncodedAction(actionParameters.toMap)
+    executeFormEncodedAction(actionParameters)
       .map(SubscriptionListResult.fromSubscriptionListResult)
   }
 }
