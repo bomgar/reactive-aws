@@ -6,6 +6,17 @@ Create an aws sdk that is non-blocking and does **not** use the official amazon 
 
 [![Build Status](https://travis-ci.org/bomgar/reactive-aws.svg?branch=master)](https://travis-ci.org/bomgar/reactive-aws)
 
+# Setup
+Set credentials as environment variables. Currently in use:
+
+| Used Env |
+| --- |
+| AWS\_ID |
+| SNS\_AWS\_ACCESS\_KEY |
+| SNS\_AWS\_SECRET\_KEY |
+| SQS\_AWS\_ACCESS\_KEY |
+| SQS\_AWS\_SECRET\_KEY |
+
 # Currently working
 ## Authentication 
 code is still an ugly scala adaptation of the amazon samples
@@ -27,5 +38,6 @@ code is still an ugly scala adaptation of the amazon samples
 * Delete topic
 * Publish
 * Subscribe topic
-* List subscriptions by topic
+* List subscriptions / .. by topic
 * Get/Set topic attributes
+* Add/Delete permission
